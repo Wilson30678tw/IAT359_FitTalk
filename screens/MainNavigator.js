@@ -1,4 +1,5 @@
 import React from 'react';
+import { Image } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import HomeScreen from '../screens/homepage';
@@ -10,21 +11,38 @@ import ProfileScreen from '../screens/ProfileScreen';
 const Tab = createBottomTabNavigator();
 
 const CustomTabBar = ({ state, navigation }) => {
+  const tabImages = {
+    Home: require("../assets/Navbar_Home.png"),
+    Fitness: require("../assets/Navbar_Fitness.png"),
+    Camera: require("../assets/Navbar_Camera.png"),
+    Moments: require("../assets/Navbar_Moments.png"),
+    Profile: require("../assets/Navbar_Profile.png"),
+  };
+
   return (
-    <View style={styles.navBar}>
-      {state.routes.map((route, index) => (
-        <TouchableOpacity
-          key={route.name}
-          style={styles.navButton}
-          onPress={() => {
-            if (route.name === 'Camera') {
-              navigation.navigate('Camera'); // 確保 Camera 正確開啟
-            } else {
-              navigation.navigate(route.name);
-            }
-          }}
-        />
-      ))}
+    <View style={styles.navBarContainer}>
+      {/* 這個 View 可以手動調整 Navbar 的大小 */}
+      <View style={styles.navBar}>
+        <Image source={tabImages[state.routes[state.index].name]} style={styles.navImage} />
+      </View>
+
+      {state.routes.map((route, index) => {
+        const positions = {
+          Home: { left: "5%" },
+          Fitness: { left: "25%" },
+          Camera: { left: "45%" },
+          Moments: { left: "65%" },
+          Profile: { left: "85%" },
+        };
+
+        return (
+          <TouchableOpacity
+            key={route.name}
+            style={[styles.navButton, { left: positions[route.name].left }]}
+            onPress={() => navigation.navigate(route.name)}
+          />
+        );
+      })}
     </View>
   );
 };
@@ -45,21 +63,30 @@ const MainNavigator = () => {
 };
 
 const styles = StyleSheet.create({
-  navBar: {
+  navBarContainer: {
     position: 'absolute',
-    bottom: 0,
+    bottom: 16,
     width: '100%',
-    height: 80,
-    flexDirection: 'row',
-    justifyContent: 'space-around',
+    alignItems: 'center', // 讓內容居中
+  },
+  navBar: {
+    width: '100%',
+    height: 84, // 這裡你可以手動調整 Navbar 的高度
+    justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'transparent',
+  },
+  navImage: {
+    width: '100%',
+    height: '100%', // 讓圖片適應 `navBar` 大小
+    resizeMode: 'contain', // 避免圖片變形
   },
   navButton: {
-    width: 60,
-    height: 60,
+    position: 'absolute',
+    width: 50,
+    height: 50,
     backgroundColor: 'transparent',
   },
 });
+
 
 export default MainNavigator;

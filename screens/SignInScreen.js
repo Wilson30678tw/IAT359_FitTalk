@@ -30,7 +30,7 @@ const SignInScreen = ({ navigation }) => {
         />
 
         {/* Sign In 按鈕 */}
-        <TouchableOpacity style={styles.button} onPress={() => navigation.replace("homepage")}>
+        <TouchableOpacity style={styles.button} onPress={() => navigation.replace("MainNavigator")}>
           <Text style={styles.buttonText}>Sign In</Text>
         </TouchableOpacity>
       </View>
