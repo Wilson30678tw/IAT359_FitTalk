@@ -1,7 +1,7 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import homepage from '../screens/homepage.js';
+import homepage from '../screens/homepage';
 import LoginScreen from '../screens/LoginScreen';
 import SignUpScreen from '../screens/SignUpScreen';
 import ProfileScreen from '../screens/ProfileScreen';
@@ -10,7 +10,7 @@ import ShareMomentsScreen from '../screens/ShareMomentsScreen';
 
 const Stack = createStackNavigator();
 
-const appnavigator = () => {
+const AppNavigator = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Home" screenOptions={{ headerShown: false }}>
@@ -25,4 +25,4 @@ const appnavigator = () => {
   );
 };
 
-export default appnavigator;
+export default AppNavigator;
