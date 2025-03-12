@@ -1,24 +1,58 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, TouchableOpacity, StyleSheet, ImageBackground } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
 const LoginScreen = () => {
+  const navigation = useNavigation();
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Login Screen</Text>
-    </View>
+    <ImageBackground
+      source={require('../assets/Main.png')}
+      style={styles.background}
+    >
+      <View style={styles.container}>
+        {/* Sign In 按鈕 */}
+        <TouchableOpacity
+          style={[styles.button, styles.signInButton]}
+          onPress={() => navigation.navigate('SignInScreen')} // 確保名稱與 AppNavigator.js 一致
+        />
+
+        {/* Sign Up 按鈕 */}
+        <TouchableOpacity
+          style={[styles.button, styles.signUpButton]}
+          onPress={() => navigation.navigate('SignUpScreen')} // 確保名稱與 AppNavigator.js 一致
+        />
+      </View>
+    </ImageBackground>
   );
 };
 
 const styles = StyleSheet.create({
+  background: {
+    flex: 1,
+    resizeMode: 'cover',
+    justifyContent: 'center',
+  },
   container: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'flex-end',
     alignItems: 'center',
-    backgroundColor: '#f8f9fa',
+    paddingBottom: 80,
   },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
+  button: {
+    width: 250,
+    height: 50,
+    marginVertical: 10,
+    borderRadius: 25,
+    position: 'absolute',
+  },
+  signInButton: {
+    backgroundColor: 'rgba(255, 165, 0, 0.5)',
+    bottom: 140,
+  },
+  signUpButton: {
+    backgroundColor: 'rgba(255, 255, 255, 0.5)',
+    bottom: 60,
   },
 });
 

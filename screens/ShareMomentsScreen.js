@@ -4,7 +4,7 @@ import { View, Text, StyleSheet } from 'react-native';
 const ShareMomentsScreen = () => {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Share Moments Screen</Text>
+      <Text style={styles.text}>Moments Page</Text>
     </View>
   );
 };
@@ -14,9 +14,9 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#fff',
   },
-  title: {
+  text: {
     fontSize: 24,
     fontWeight: 'bold',
   },

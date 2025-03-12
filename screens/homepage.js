@@ -1,19 +1,10 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 
-const homepage = ({ navigation }) => {
+const HomeScreen = () => {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Welcome to FitTalk</Text>
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('FitnessTask')}>
-        <Text style={styles.buttonText}>Fitness Tasks</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('ShareMoments')}>
-        <Text style={styles.buttonText}>Share Moments</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Profile')}>
-        <Text style={styles.buttonText}>Profile</Text>
-      </TouchableOpacity>
+      <Text style={styles.text}>Home Page</Text>
     </View>
   );
 };
@@ -23,26 +14,12 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#fff',
   },
-  title: {
+  text: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 20,
-  },
-  button: {
-    backgroundColor: '#007bff',
-    padding: 15,
-    borderRadius: 8,
-    marginVertical: 10,
-    width: '80%',
-    alignItems: 'center',
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
   },
 });
 
-export default homepage;
-
+export default HomeScreen; 
