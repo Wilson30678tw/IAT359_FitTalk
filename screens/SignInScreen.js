@@ -30,7 +30,7 @@ const SignInScreen = ({ navigation }) => {
         />
 
         {/* Sign In 按鈕 */}
-        <TouchableOpacity style={styles.button} onPress={() => navigation.replace("MainNavigator")}>
+        <TouchableOpacity style={styles.button} onPress={() => navigation.replace("Main")}>
           <Text style={styles.buttonText}>Sign In</Text>
         </TouchableOpacity>
       </View>
@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
     borderColor: "#ccc",
     borderRadius: 25, // 讓邊角更圓潤
     paddingHorizontal: 15,
-    backgroundColor: "#fff",
+    backgroundColor: "#543F2E",
   },
   emailInput: {
     marginBottom: 15,

@@ -8,7 +8,7 @@ const SignUpScreen = ({ navigation }) => {
   const [confirmPassword, setConfirmPassword] = useState("");
 
   return (
-    <ImageBackground source={require("../assets/Sign_Up.png")} style={styles.background}>
+    <ImageBackground source={require("../assets/Sign_Up1.png")} style={styles.background}>
       <View style={styles.container}>
         <TextInput
           style={[styles.input, styles.nameInput]}
@@ -46,13 +46,13 @@ const SignUpScreen = ({ navigation }) => {
           placeholderTextColor="#aaa"
         />
 
-        <TouchableOpacity style={styles.button} onPress={() => console.log("Sign Up Pressed")}>
-          <Text style={styles.buttonText}>Sign up</Text>
+        <TouchableOpacity style={styles.signUpButton} onPress={() => navigation.navigate("SignIn") }>
+          
         </TouchableOpacity>
 
         <Text style={styles.footerText}>
           Already have an account?{" "}
-          <Text style={styles.signInText} onPress={() => navigation.navigate("SignInScreen")}>
+          <Text style={styles.signInText} onPress={() => navigation.navigate("SignIn")}>
             Sign in
           </Text>
         </Text>
@@ -71,44 +71,54 @@ const styles = StyleSheet.create({
   container: {
     width: "80%",
     alignItems: "center",
+    position: "absolute",
   },
   input: {
-    width: "100%",
-    height: 50,
+    width: "105%",
+    height: 44,
     borderRadius: 25,
     paddingHorizontal: 15,
-    backgroundColor: "#543F2E", // 深棕色背景
+    position: "absolute",
+    backgroundColor: "#543F2E",
   },
   nameInput: {
-    marginBottom: 15,
-    marginTop: -100, // 調整位置貼合背景
+    top: -170,  // 🎯 調整 Name 輸入框的位置
   },
   emailInput: {
-    marginBottom: 15,
+    top: -72,   // 🎯 調整 Email 輸入框的位置
   },
   passwordInput: {
-    marginBottom: 15,
+    top: 22,   // 🎯 調整 Password 輸入框的位置
   },
   confirmPasswordInput: {
-    marginBottom: 25,
+    top: 116,   // 🎯 調整 Confirm Password 輸入框的位置
   },
   button: {
     width: "100%",
-    backgroundColor: "#E87E27",
     padding: 12,
     borderRadius: 25,
     alignItems: "center",
+    position: "absolute",
+  },
+  signUpButton: {
+    backgroundColor: "transparent",
+    width:'105%',
+    height: 40,
+    top: 252,  // 🎯 調整 Sign Up 按鈕的位置
+    borderRadius: 30,
   },
   buttonText: {
     color: "#fff",
     fontSize: 18,
   },
   footerText: {
-    marginTop: 20,
+    position: "absolute",
+    top: 394, // 🎯 調整 Footer Text 的位置
     color: "#fff",
   },
   signInText: {
     color: "#E87E27",
+    textDecorationLine: "underline",
     fontWeight: "bold",
   },
 });

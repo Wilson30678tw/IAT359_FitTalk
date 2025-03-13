@@ -14,13 +14,13 @@ const LoginScreen = () => {
         {/* Sign In 按鈕 */}
         <TouchableOpacity
           style={[styles.button, styles.signInButton]}
-          onPress={() => navigation.navigate('SignInScreen')} // 確保名稱與 AppNavigator.js 一致
+          onPress={() => navigation.navigate('SignIn')} // 確保名稱與 AppNavigator.js 一致
         />
 
         {/* Sign Up 按鈕 */}
         <TouchableOpacity
           style={[styles.button, styles.signUpButton]}
-          onPress={() => navigation.navigate('SignUpScreen')} // 確保名稱與 AppNavigator.js 一致
+          onPress={() => navigation.navigate('SignUp')} // 確保名稱與 AppNavigator.js 一致
         />
       </View>
     </ImageBackground>
