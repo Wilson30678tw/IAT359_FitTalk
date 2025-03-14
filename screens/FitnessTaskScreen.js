@@ -110,7 +110,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   taskListHeader: {
-    fontSize: 18,
+    fontSize: 20,
     color: 'white',
     fontWeight: 'bold',
     alignSelf: 'flex-start',
