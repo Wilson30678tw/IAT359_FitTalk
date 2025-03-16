@@ -1,21 +1,40 @@
 import React from 'react';
-import { View, Text, StyleSheet, ImageBackground, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ImageBackground, ScrollView, FlatList, TouchableOpacity, Image } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { ProgressChart } from 'react-native-chart-kit';
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
-const ShareMomentsScreen = () => {
-  // 模擬數據
+const FitnessTaskScreen = () => {
+  // Mock data for the chart
   const data = {
     labels: ["Task Complete", "Calorie Burn"],
-    data: [0.65, 0.48] // 65% 和 48%
+    data: [0.65, 0.48] // 65% and 48%
   };
+
+  const navigation = useNavigation();
+
+  // Exercise list with images
+  const exercises = [
+    { id: '1', name: 'Back', duration: '10 min', calories: '120 kcal', image: require('../assets/fitness-app-assets/back.png') },
+    { id: '2', name: 'Cardio', duration: '30 min', calories: '90 kcal', image: require('../assets/fitness-app-assets/cardio.png') },
+    { id: '3', name: 'Chest', duration: '10 min', calories: '110 kcal', image: require('../assets/fitness-app-assets/chest.png') },
+    { id: '4', name: 'Lower Arms', duration: '15 min', calories: '80 kcal', image: require('../assets/fitness-app-assets/lowerArms.png') },
+    { id: '5', name: 'Lower Legs', duration: '15 min', calories: '80 kcal', image: require('../assets/fitness-app-assets/lowerLegs.png') },
+    { id: '6', name: 'Neck', duration: '10 min', calories: '80 kcal', image: require('../assets/fitness-app-assets/neck.png') },
+    { id: '7', name: 'Shoulders', duration: '10 min', calories: '80 kcal', image: require('../assets/fitness-app-assets/shoulders.png') },
+    { id: '8', name: 'Upper Arms', duration: '15 min', calories: '80 kcal', image: require('../assets/fitness-app-assets/upperArms.png') },
+    { id: '9', name: 'Upper Legs', duration: '15 min', calories: '80 kcal', image: require('../assets/fitness-app-assets/upperLegs.png') },
+    { id: '10', name: 'Waist', duration: '10 min', calories: '80 kcal', image: require('../assets/fitness-app-assets/waist.png') },
+  ];
 
   return (
     <ImageBackground 
-      source={require('../assets/FitTaskBG.png')} // 你的背景圖
+      source={require('../assets/FitTaskBG.png')} // Background image
       style={styles.background}
     >
       <ScrollView contentContainerStyle={styles.container}>
-        {/* 環形圖表與統計數據 */}
+        
+        {/* Circular Progress Chart */}
         <View style={styles.progressContainer}>
           <ProgressChart
             data={data}
@@ -38,27 +57,41 @@ const ShareMomentsScreen = () => {
           </View>
         </View>
 
-        {/* 統計數據 */}
+        {/* Statistics */}
         <View style={styles.statsContainer}>
           <Text style={styles.statsText}>42 mins{"\n"}Time</Text>
           <Text style={styles.statsText}>2920{"\n"}Steps</Text>
           <Text style={styles.statsText}>2.7 km{"\n"}Distance</Text>
         </View>
 
-        {/* 任務列表 */}
+        {/* Task List */}
         <Text style={styles.taskListHeader}>Task List</Text>
         <View style={styles.taskContainer}>
           <Text style={styles.taskStatus}>Complete</Text>
-          <View style={styles.taskItem}>
-            <Text style={styles.taskTitle}>Abdominal training</Text>
-          </View>
-          <View style={styles.taskItem}>
-            <Text style={styles.taskTitle}>Upper limb training</Text>
-          </View>
-          <View style={styles.taskItem}>
-            <Text style={styles.taskTitle}>Total Body Fat Burning</Text>
-          </View>
+          <View style={styles.taskItem}><Text style={styles.taskTitle}>Abdominal training</Text></View>
+          <View style={styles.taskItem}><Text style={styles.taskTitle}>Upper limb training</Text></View>
+          <View style={styles.taskItem}><Text style={styles.taskTitle}>Total Body Fat Burning</Text></View>
         </View>
+        
+        {/* Exercise List with Images */}
+        <Text style={styles.taskListHeader}>Exercises</Text>
+        <FlatList
+          style={styles.exerciseContainer}
+          data={exercises}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <TouchableOpacity 
+              style={styles.exerciseItem}
+              onPress={() => navigation.navigate('ExerciseDetail', { exercise: item })}
+            >
+              <Image source={item.image} style={styles.exerciseImage} />
+              <View style={styles.exerciseTextContainer}>
+                <Text style={styles.exerciseName}>{item.name}</Text>
+                <Text style={styles.exerciseInfo}>{item.duration} | {item.calories}</Text>
+              </View>
+            </TouchableOpacity>
+          )}
+        />
       </ScrollView>
     </ImageBackground>
   );
@@ -73,13 +106,13 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     alignItems: 'center',
     paddingVertical: 20,
-    paddingTop: 80, // **向下移動整個內容**
+    paddingTop: 80, 
   },
   progressContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 20,
-    marginTop: 50, // **往下移動**
+    marginTop: 50,
   },
   progressTextContainer: {
     marginLeft: 10,
@@ -102,7 +135,7 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 10,
     marginBottom: 20,
-    marginTop: 20, // **往下移動**
+    marginTop: 20,
   },
   statsText: {
     color: '#fff',
@@ -110,20 +143,20 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   taskListHeader: {
-    fontSize: 20,
+    fontSize: hp(2),
     color: 'white',
     fontWeight: 'bold',
     alignSelf: 'flex-start',
     marginLeft: '10%',
     marginBottom: 10,
-    marginTop: 20, // **往下移動**
+    marginTop: 20,
   },
   taskContainer: {
     width: '90%',
     backgroundColor: 'rgba(0,0,0,0.6)',
     padding: 10,
     borderRadius: 10,
-    marginTop: 20, // **往下移動**
+    marginTop: 20,
   },
   taskStatus: {
     fontSize: 16,
@@ -141,6 +174,36 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 14,
   },
+  exerciseContainer: {
+    width: '90%'
+  },
+  exerciseItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    padding: 15,
+    marginVertical: 8,
+    borderRadius: 10,
+    width: '100%',
+  },
+  exerciseImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 15,
+    marginRight: 20,
+  },
+  exerciseTextContainer: {
+    flex: 1,
+  },
+  exerciseName: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  exerciseInfo: {
+    color: '#ddd',
+    fontSize: 14,
+  },
 });
 
-export default ShareMomentsScreen;
+export default FitnessTaskScreen;
