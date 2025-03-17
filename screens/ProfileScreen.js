@@ -141,7 +141,11 @@ const ProfileScreen = () => {
               <View key={msg.id} style={styles.messageItem}>
                 <Image source={msg.avatar} style={styles.messageAvatar} />
                 <View>
-                  <Text style={styles.messageName}>{msg.name} - <Text style={styles.messageTime}>{msg.time}</Text></Text>
+                <Text style={styles.messageName}>
+  <Text>{msg.name} </Text>
+  <Text>- </Text>
+  <Text style={styles.messageTime}>{msg.time}</Text>
+</Text>
                   <Text style={styles.messageText}>{msg.message}</Text>
                 </View>
               </View>

@@ -18,12 +18,12 @@ const SignUpScreen = ({ navigation }) => {
     console.log(`🔍 name=${name}, email=${email}, password=${password}, confirmPassword=${confirmPassword}`);
 
     if (!name || !email || !password || !confirmPassword) {
-      Alert.alert("错误", "请填写所有字段！");
+      Alert.alert("Error", "Please fill in all fields!");
       return;
     }
 
     if (password !== confirmPassword) {
-      Alert.alert("错误", "两次输入的密码不一致！");
+      Alert.alert("Error", "The passwords entered twice do not match!");
       return;
     }
 
@@ -47,7 +47,7 @@ const SignUpScreen = ({ navigation }) => {
 
       console.log("📄 Firestore 文檔創建成功！");
 
-      Alert.alert("注册成功", `欢迎 ${name}！请登录`, [
+      Alert.alert("Sign up successful", `Welcome ${name}！Please log in`, [
         {
           text: "OK",
           onPress: () => {
@@ -58,7 +58,7 @@ const SignUpScreen = ({ navigation }) => {
       ]);
     } catch (error) {
       console.log("❌ 注册失败：", error.message);
-      Alert.alert("注册失败", getErrorMessage(error.code));
+      Alert.alert("Sign up failed", getErrorMessage(error.code));
     } finally {
       setLoading(false);
     }
@@ -68,13 +68,13 @@ const SignUpScreen = ({ navigation }) => {
   const getErrorMessage = (errorCode) => {
     switch (errorCode) {
       case "auth/email-already-in-use":
-        return "這個 Email 已經被註冊過了！";
+        return "This email has already been registered!";
       case "auth/invalid-email":
-        return "請輸入有效的 Email！";
+        return "Please enter a valid Email!";
       case "auth/weak-password":
-        return "密碼太簡單，請至少 6 個字！";
+        return "The password is too easy. Please use at least 6 characters!";
       default:
-        return "註冊失敗，請稍後再試！";
+        return "Sign up failed, please try again later!";
     }
   };
 

@@ -1,21 +1,24 @@
 import React, { useState } from "react";
-import { View, TextInput, TouchableOpacity, ImageBackground, StyleSheet, Text } from "react-native";
-import { Alert } from "react-native"; 
+import { 
+  View, 
+  TextInput, 
+  TouchableOpacity, 
+  ImageBackground, 
+  StyleSheet, 
+  Text, 
+  Alert 
+} from "react-native";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebaseConfig";
-
 
 const SignInScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  
 
   const handleSignIn = async () => {
-
-    
     if (!email || !password) {
-      Alert.alert("⚠️ 錯誤", "請輸入 Email 和密碼！");
+      Alert.alert("⚠️ Error", "Please enter your Email and Password!");
       return;
     }
 
@@ -25,18 +28,18 @@ const SignInScreen = ({ navigation }) => {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user; // 取得已登入的用戶資訊
   
-      console.log("✅ 登入成功！", user.email);
+      console.log("✅ Sign-in successful!", user.email);
   
       // ✅ 確保 `Alert` 只顯示一次
       setLoading(false);
-      Alert.alert("✅ 登入成功", `歡迎回來，${user.email}！`, [
+      Alert.alert("✅ Sign-in Successful", `Welcome back, ${user.email}!`, [
         { text: "OK", onPress: () => navigation.replace("Main") },
       ]);
     } catch (error) {
-      console.log("❌ 登入失敗：", error.message);
+      console.log("❌ Sign-in failed:", error.message);
       
       setLoading(false);
-      Alert.alert("❌ 登入失敗", getErrorMessage(error.code));
+      Alert.alert("❌ Sign-in Failed", getErrorMessage(error.code));
     }
   };
 
@@ -44,23 +47,22 @@ const SignInScreen = ({ navigation }) => {
   const getErrorMessage = (errorCode) => {
     switch (errorCode) {
       case "auth/invalid-email":
-        return "無效的 Email 格式！";
+        return "Invalid email format!";
       case "auth/user-not-found":
-        return "此帳戶不存在，請先註冊！";
+        return "This account does not exist. Please sign up first!";
       case "auth/wrong-password":
-        return "密碼錯誤，請再試一次！";
+        return "Incorrect password. Please try again!";
       case "auth/too-many-requests":
-        return "多次輸入錯誤，請稍後再試！";
+        return "Too many failed attempts. Please try again later!";
       default:
-        return "登入失敗，請檢查帳號資訊！";
+        return "Sign-in failed. Please check your account details!";
     }
   };
-
 
   return (
     <ImageBackground source={require("../assets/Sign_in.png")} style={styles.background}>
       <View style={styles.container}>
-        {/* Email 輸入框 */}
+        {/* Email Input Field */}
         <TextInput
           style={[styles.input, styles.emailInput]}
           placeholder="Email/Phone Number"
@@ -71,7 +73,7 @@ const SignInScreen = ({ navigation }) => {
           placeholderTextColor="#aaa"
         />
 
-        {/* 密碼輸入框 */}
+        {/* Password Input Field */}
         <TextInput
           style={[styles.input, styles.passwordInput]}
           placeholder="Password"
@@ -81,17 +83,17 @@ const SignInScreen = ({ navigation }) => {
           placeholderTextColor="#aaa"
         />
 
-        {/* Sign In 按鈕 */}
+        {/* Sign In Button */}
         <TouchableOpacity style={styles.button} onPress={handleSignIn}>
           <Text style={styles.buttonText}>Sign In</Text>
         </TouchableOpacity>
 
-         <Text style={styles.footerText}>
-                  Don't have an account?{" "}
-                  <Text style={styles.signUpText} onPress={() => navigation.navigate("SignUp")}>
-                    Sign Up
-                  </Text>
-                </Text>
+        <Text style={styles.footerText}>
+          Don't have an account?{" "}
+          <Text style={styles.signUpText} onPress={() => navigation.navigate("SignUp")}>
+            Sign Up
+          </Text>
+        </Text>
       </View>
     </ImageBackground>
   );
@@ -138,7 +140,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
   },
-
   footerText: {
     position: "absolute",
     top: 394, // 🎯 調整 Footer Text 的位置
