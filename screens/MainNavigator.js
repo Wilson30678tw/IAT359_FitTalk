@@ -14,7 +14,7 @@ const CustomTabBar = ({ state, navigation }) => {
   const tabImages = {
     Home: require("../assets/Navbar_Home.png"),
     Fitness: require("../assets/Navbar_Fitness.png"),
-    Camera: require("../assets/Navbar_Camera.png"),
+    Camera: require("../assets/Navbar_Map.png"),
     Moments: require("../assets/Navbar_Moments.png"),
     Profile: require("../assets/Navbar_Profile.png"),
   };
