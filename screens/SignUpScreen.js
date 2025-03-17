@@ -1,11 +1,69 @@
 import React, { useState } from "react";
 import { View, TextInput, TouchableOpacity, ImageBackground, StyleSheet, Text } from "react-native";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../firebaseConfig"; // ✅ 連接 Firebase
+import { Alert } from 'react-native';
 
 const SignUpScreen = ({ navigation }) => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleSignUp = async () => {
+    console.log("🔥 按下 SignUp 按鈕！"); // 確保按鈕被點擊
+    console.log(`🔍 name=${name}, email=${email}, password=${password}, confirmPassword=${confirmPassword}`);
+
+    if (!name || !email || !password || !confirmPassword) {
+      Alert.alert("错误", "请填写所有字段！");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      Alert.alert("错误", "两次输入的密码不一致！");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      console.log("🚀 嘗試 Firebase 註冊...");
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      console.log("✅ 註冊成功！", user.email);
+
+      Alert.alert("注册成功", `欢迎 ${name}！请登录`, [
+        {
+          text: "OK",
+          onPress: () => {
+            console.log("🔄 正在跳转到登录页面...");
+            setTimeout(() => navigation.replace("SignIn"), 500);
+          },
+        },
+      ]);
+    } catch (error) {
+      console.log("❌ 注册失败：", error.message);
+      Alert.alert("注册失败", getErrorMessage(error.code));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 🔹 轉換 Firebase 錯誤碼為可讀訊息
+  const getErrorMessage = (errorCode) => {
+    switch (errorCode) {
+      case "auth/email-already-in-use":
+        return "這個 Email 已經被註冊過了！";
+      case "auth/invalid-email":
+        return "請輸入有效的 Email！";
+      case "auth/weak-password":
+        return "密碼太簡單，請至少 6 個字！";
+      default:
+        return "註冊失敗，請稍後再試！";
+    }
+  };
 
   return (
     <ImageBackground source={require("../assets/Sign_Up1.png")} style={styles.background}>
@@ -46,9 +104,8 @@ const SignUpScreen = ({ navigation }) => {
           placeholderTextColor="#aaa"
         />
 
-        <TouchableOpacity style={styles.signUpButton} onPress={() => navigation.navigate("SignIn") }>
-          
-        </TouchableOpacity>
+       {/* 註冊按鈕（連接 Firebase 註冊功能） */}
+       <TouchableOpacity style={styles.signUpButton} onPress={handleSignUp} disabled={loading}/>
 
         <Text style={styles.footerText}>
           Already have an account?{" "}

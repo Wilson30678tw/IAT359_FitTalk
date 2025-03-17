@@ -1,16 +1,11 @@
-import React from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  FlatList, 
-  Image, 
-  TouchableOpacity, 
-  ScrollView 
-} from 'react-native';
+import React, { useState } from 'react';
+import {  View, Text, StyleSheet, FlatList, Image, TouchableOpacity,  ScrollView } from 'react-native';
+import { auth } from '../firebaseConfig'; // 確保 Firebase 正確導入
+import { signOut } from "firebase/auth";
+import { Alert } from "react-native";
 import { useNavigation } from '@react-navigation/native';
 
-// 📸 貼文數據（用來顯示過去的活動記錄）
+// 📸 貼文數據（使用你的 `assets` 圖片）
 const userPosts = [
   { id: '1', image: require('../assets/post1.png') },
   { id: '2', image: require('../assets/post2.png') },
@@ -18,46 +13,151 @@ const userPosts = [
   { id: '4', image: require('../assets/post4.png') },
 ];
 
-// 👥 好友列表
-const friendsList = [
-  { id: '1', avatar: require('../assets/user1.png') },
-  { id: '2', avatar: require('../assets/user2.png') },
-  { id: '3', avatar: require('../assets/user3.png') },
+// ❤️ Like 貼文 (暫時重複使用 `post1.png` & `post2.png` 作為範例)
+const likedPosts = [
+  { id: '1', image: require('../assets/post1.png') },
+  { id: '2', image: require('../assets/post2.png') },
+];
+
+// 💬 聊天訊息 (使用 `user1.png`, `user2.png`, `user3.png` 作為頭像)
+const messages = [
+  { id: '1', name: 'Johnny', time: 'Just now', message: 'Sure! See you later!', avatar: require('../assets/user1.png') },
+  { id: '2', name: 'Will', time: '1h ago', message: "That's cool!", avatar: require('../assets/user2.png') },
+  { id: '3', name: 'Jessica', time: '2h ago', message: 'Just let me know then!', avatar: require('../assets/user3.png') },
+  { id: '4', name: 'Will', time: 'Yesterday', message: 'Excited!!', avatar: require('../assets/user1.png') },
 ];
 
 const ProfileScreen = () => {
+  const navigation = useNavigation();
+  const [selectedTab, setSelectedTab] = useState('posts'); // 預設顯示自己的貼文
+  const handleSignOut = () => {
+    console.log("🔴 Sign Out 按鈕被點擊");
+    if (!auth.currentUser) {
+      console.log("❌ 沒有已登入的用戶");
+      Alert.alert("登出失敗", "目前沒有已登入的帳戶");
+      return;
+    }
+
+    signOut(auth)
+      .then(() => {
+        console.log("✅ 已成功登出");
+        Alert.alert("已登出", "您已成功登出", [
+          { text: "OK", onPress: () => navigation.replace("SignIn") } // ✅ 修正導航
+        ]);
+      })
+      .catch((error) => {
+        console.log("❌ 登出失敗:", error.message);
+        Alert.alert("登出失敗", error.message);
+      });
+  };
+
   return (
     <View style={styles.container}>
       
-      {/* 🏷️ 頭像 & 個人資訊（增加 marginTop） */}
+      {/* 🏷️ 頭像 & 個人資訊 */}
       <View style={styles.profileHeader}>
         <Image source={require('../assets/user1.png')} style={styles.profileAvatar} />
         <View>
           <Text style={styles.username}>EmilyW</Text>
-          <Text style={styles.bio}>Fitness Enthusiast | Healthy Living</Text>
+          <Text style={styles.bio}>Powered by Strength! {"\n"}Strong mind, strong body. Pushing limits every day!</Text>
         </View>
-        <TouchableOpacity style={styles.settingsButton}>
-          <Text style={styles.settingsText}>⚙️</Text>
+      </View>
+
+            {/* 📊 用戶統計數據 */}
+            <View style={styles.userStats}>
+        <View style={styles.statItem}>
+          <Text style={styles.statNumber}>42</Text>
+          <Text style={styles.statLabel}>Posts</Text>
+        </View>
+        <View style={styles.statItem}>
+          <Text style={styles.statNumber}>68</Text>
+          <Text style={styles.statLabel}>Followers</Text>
+        </View>
+        <View style={styles.statItem}>
+          <Text style={styles.statNumber}>139</Text>
+          <Text style={styles.statLabel}>Following</Text>
+        </View>
+      </View>
+
+      {/* 🔘 四個切換按鈕 */}
+      <View style={styles.tabContainer}>
+        <TouchableOpacity onPress={() => setSelectedTab('posts')}>
+          <Text style={[styles.tabButton, selectedTab === 'posts' && styles.activeTab]}>🏞️</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => setSelectedTab('likes')}>
+          <Text style={[styles.tabButton, selectedTab === 'likes' && styles.activeTab]}>❤️</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => setSelectedTab('chats')}>
+          <Text style={[styles.tabButton, selectedTab === 'chats' && styles.activeTab]}>💬</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => setSelectedTab('settings')}>
+          <Text style={[styles.tabButton, selectedTab === 'settings' && styles.activeTab]}>⚙️</Text>
         </TouchableOpacity>
       </View>
 
-      {/* 👥 好友列表 */}
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.friendsContainer}>
-        {friendsList.map((item) => (
-          <Image key={item.id} source={item.avatar} style={styles.friendAvatar} />
-        ))}
-      </ScrollView>
-
-      {/* 🏆 過去貼文（健身記錄） */}
-      <Text style={styles.sectionTitle}>My Activities</Text>
-      <FlatList
-        data={userPosts}
-        keyExtractor={(item) => item.id}
-        numColumns={2} // 兩列顯示
-        renderItem={({ item }) => (
-          <Image source={item.image} style={styles.postImage} />
+      {/* 📌 切換顯示不同的內容 */}
+      <View style={styles.contentContainer}>
+        {selectedTab === 'posts' && (
+          <FlatList
+            data={userPosts}
+            keyExtractor={(item) => item.id}
+            numColumns={2}
+            renderItem={({ item }) => <Image source={item.image} style={styles.postImage} />}
+          />
         )}
-      />
+
+        {selectedTab === 'likes' && (
+          <FlatList
+            data={likedPosts}
+            keyExtractor={(item) => item.id}
+            numColumns={2}
+            renderItem={({ item }) => <Image source={item.image} style={styles.postImage} />}
+          />
+        )}
+
+        {selectedTab === 'chats' && (
+          <View>
+            {messages.map((msg) => (
+              <View key={msg.id} style={styles.messageItem}>
+                <Image source={msg.avatar} style={styles.messageAvatar} />
+                <View>
+                  <Text style={styles.messageName}>{msg.name} - <Text style={styles.messageTime}>{msg.time}</Text></Text>
+                  <Text style={styles.messageText}>{msg.message}</Text>
+                </View>
+              </View>
+            ))}
+          </View>
+        )}
+
+{selectedTab === 'settings' && ( 
+  <View style={styles.settingsContainer}>
+    
+    {/* 設定選單項目 */}
+    <TouchableOpacity style={styles.settingItem}>
+      <Text style={styles.settingText}>⚙️ Setting</Text>
+    </TouchableOpacity>
+
+    <TouchableOpacity style={styles.settingItem}>
+      <Text style={styles.settingText}>ℹ️ Help & Feedback</Text>
+    </TouchableOpacity>
+
+    <TouchableOpacity style={styles.settingItem}>
+      <Text style={styles.settingText}>📜 Privacy & Legal</Text>
+    </TouchableOpacity>
+
+    <TouchableOpacity style={styles.settingItem}>
+      <Text style={styles.settingText}>🏛 About Vandusen</Text>
+    </TouchableOpacity>
+
+    {/* 🔴 登出按鈕 (Firebase Sign Out) */}
+    <TouchableOpacity style={styles.signOutButton} onPress={handleSignOut}>
+      <Text style={styles.signOutText}>Sign Out</Text>
+    </TouchableOpacity>
+
+  </View>
+)}
+      </View>
+
     </View>
   );
 };
@@ -72,13 +172,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingBottom: 20,
-    marginTop: 80, // **將帳號資訊下移**
+    marginTop: 60,
   },
   profileAvatar: {
     width: 80,
     height: 80,
     borderRadius: 40,
     marginRight: 15,
+    marginTop: 60,
   },
   username: {
     fontSize: 20,
@@ -89,30 +190,26 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#aaa',
   },
-  settingsButton: {
-    position: 'absolute',
-    right: 10,
-    top: 20,
-  },
-  settingsText: {
-    fontSize: 24,
-    color: '#fff',
-  },
-  friendsContainer: {
+  tabContainer: {
     flexDirection: 'row',
-    marginBottom: 20,
+    justifyContent: 'space-around',
+    borderBottomWidth: 1,
+    borderBottomColor: '#444',
+    paddingBottom: 10,
   },
-  friendAvatar: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    marginRight: 10,
+  tabButton: {
+    fontSize: 24,
+    color: '#777',
   },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginBottom: 10,
+  activeTab: {
+    color: '#E87E27',
+    borderBottomWidth: 3,
+    borderBottomColor: '#E87E27',
+    paddingBottom: 5,
+  },
+  contentContainer: {
+    flex: 1,
+    marginTop: 10,
   },
   postImage: {
     width: '48%',
@@ -120,6 +217,65 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     marginRight: '4%',
     borderRadius: 10,
+  },
+  messageItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 10,
+    backgroundColor: '#333',
+    marginVertical: 5,
+    borderRadius: 8,
+  },
+  messageAvatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginRight: 10,
+  },
+  messageName: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#fff',
+  },
+  messageTime: {
+    fontSize: 12,
+    color: '#aaa',
+  },
+  messageText: {
+    fontSize: 14,
+    color: '#ddd',
+  },
+  settingsText: {
+    fontSize: 18,
+    color: '#fff',
+    textAlign: 'center',
+    marginTop: 20,
+  },
+  settingsContainer: {
+    marginTop: 30,  // 🔴 這裡控制 settings 頁面的間距
+  },
+  settingItem: {
+    padding: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#444',
+  },
+  settingText: {
+    fontSize: 16,
+    color: '#fff',
+  },
+  signOutButton: {
+    marginTop: 30,
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderColor: '#E87E27',
+    padding: 15,
+    alignItems: 'center',
+    borderRadius: 30,
+  },
+  signOutText: {
+    color: '#E87E27',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
 

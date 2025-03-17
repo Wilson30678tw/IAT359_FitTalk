@@ -2,9 +2,9 @@ import React from 'react';
 import { Image } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
-import HomeScreen from '../screens/HomePage';
+import HomeScreen from './HomePage';
 import FitnessTaskScreen from '../screens/FitnessTaskScreen';
-import CameraScreen from '../screens/CameraScreen';
+import CameraScreen from '../screens/MapScreen';
 import MomentsScreen from '../screens/ShareMomentsScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 
@@ -14,7 +14,7 @@ const CustomTabBar = ({ state, navigation }) => {
   const tabImages = {
     Home: require("../assets/Navbar_Home.png"),
     Fitness: require("../assets/Navbar_Fitness.png"),
-    Camera: require("../assets/Navbar_Camera.png"),
+    Camera: require("../assets/Navbar_Map.png"),
     Moments: require("../assets/Navbar_Moments.png"),
     Profile: require("../assets/Navbar_Profile.png"),
   };
@@ -32,7 +32,7 @@ const CustomTabBar = ({ state, navigation }) => {
           Fitness: { left: "25%" },
           Camera: { left: "45%" },
           Moments: { left: "65%" },
-          Profile: { left: "85%" },
+          Profile: { left: "86%" },
         };
 
         return (
