@@ -39,7 +39,7 @@ const CameraScreen = ({ navigation }) => {
 
   const uploadImageToFirebase = async () => {
     if (!image) {
-      Alert.alert("❌ 錯誤", "請先拍攝照片！");
+      Alert.alert("❌ Error", "Please take a photo first!");
       return;
     }
 
@@ -48,7 +48,7 @@ const CameraScreen = ({ navigation }) => {
       const auth = getAuth();
       const user = auth.currentUser;
       if (!user) {
-        Alert.alert("❌ 請先登入");
+        Alert.alert("❌ Please login first");
         return;
       }
 
@@ -67,8 +67,8 @@ const CameraScreen = ({ navigation }) => {
 
       await saveImageToFirestore(user, downloadURL);
     } catch (error) {
-      console.error("❌ 上傳圖片失敗:", error);
-      Alert.alert("❌ 上傳失敗", "請稍後再試");
+      console.error("❌ Failed to upload image:", error);
+      Alert.alert("❌ Failed to upload", "Please try again later");
     }
     setUploading(false);
   };
@@ -82,7 +82,7 @@ const CameraScreen = ({ navigation }) => {
         timestamp: serverTimestamp(),
       });
       console.log("✅ 圖片資訊已儲存到 Firestore");
-      Alert.alert("✅ 成功", "圖片已成功上傳到 Moments!");
+      Alert.alert("✅ success", "The image has been successfully uploaded to Moments!");
       navigation.goBack(); // 上傳後自動返回 Moments 頁面
     } catch (error) {
       console.error("❌ 儲存到 Firestore 失敗:", error);
@@ -92,10 +92,10 @@ const CameraScreen = ({ navigation }) => {
   return (
     <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
       <Text>📷 Camera Screen</Text>
-      <Button title="拍照" onPress={takePicture} />
+      <Button title="Take Photo" onPress={takePicture} />
       {image && <Image source={{ uri: image }} style={{ width: 200, height: 200 }} />}
-      <Button title="上傳照片" onPress={uploadImageToFirebase} disabled={uploading} />
-      <Button title="返回" onPress={() => navigation.goBack()} />
+      <Button title="Upload Picture" onPress={uploadImageToFirebase} disabled={uploading} />
+      <Button title="Return" onPress={() => navigation.goBack()} />
     </View>
   );
 };
