@@ -52,7 +52,7 @@ const SignUpScreen = ({ navigation }) => {
           text: "OK",
           onPress: () => {
             console.log("🔄 正在跳转到登录页面...");
-            setTimeout(() => navigation.replace("SignInScreen"), 500);
+            setTimeout(() => navigation.replace("SignIn"), 500);
           },
         },
       ]);
