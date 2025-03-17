@@ -2,11 +2,11 @@ import React from 'react';
 import { Image } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
-import HomeScreen from './HomePage';
-import FitnessTaskScreen from '../screens/FitnessTaskScreen';
-import CameraScreen from '../screens/MapScreen';
+import HomeScreen from '../screens/HomePage';
+import CameraScreen from '../screens/CameraScreen';
 import MomentsScreen from '../screens/ShareMomentsScreen';
 import ProfileScreen from '../screens/ProfileScreen';
+import ExerciseNavigator from '../screens/ExerciseNavigator';
 
 const Tab = createBottomTabNavigator();
 
@@ -14,7 +14,7 @@ const CustomTabBar = ({ state, navigation }) => {
   const tabImages = {
     Home: require("../assets/Navbar_Home.png"),
     Fitness: require("../assets/Navbar_Fitness.png"),
-    Camera: require("../assets/Navbar_Map.png"),
+    Camera: require("../assets/Navbar_Camera.png"),
     Moments: require("../assets/Navbar_Moments.png"),
     Profile: require("../assets/Navbar_Profile.png"),
   };
@@ -32,7 +32,7 @@ const CustomTabBar = ({ state, navigation }) => {
           Fitness: { left: "25%" },
           Camera: { left: "45%" },
           Moments: { left: "65%" },
-          Profile: { left: "86%" },
+          Profile: { left: "85%" },
         };
 
         return (
@@ -54,13 +54,14 @@ const MainNavigator = () => {
       tabBar={(props) => <CustomTabBar {...props} />}
     >
       <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Fitness" component={FitnessTaskScreen} />
+      <Tab.Screen name="Fitness" component={ExerciseNavigator} />
       <Tab.Screen name="Camera" component={CameraScreen} />
       <Tab.Screen name="Moments" component={MomentsScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
   );
 };
+
 
 const styles = StyleSheet.create({
   navBarContainer: {
