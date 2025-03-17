@@ -3,12 +3,10 @@ import { Image } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import HomeScreen from '../screens/HomePage';
-import FitnessTaskScreen from '../screens/FitnessTaskScreen';
 import CameraScreen from '../screens/CameraScreen';
 import MomentsScreen from '../screens/ShareMomentsScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import ExerciseNavigator from '../screens/ExerciseNavigator';
-import ExerciseDetail from "../screens/ExerciseDetail";
 
 const Tab = createBottomTabNavigator();
 

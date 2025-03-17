@@ -1,42 +1,44 @@
+export const rapidApiKey = '988b02093cmsh6ef5dc0b74ab88bp153164jsn64904617bce7';
+
 export const bodyParts = [
     {
-        name: 'back',
+        name: 'Back',
         image: require('../assets/fitness-app-assets/back.png'),
     },
     {
-        name: 'cardio',
+        name: 'Cardio',
         image: require('../assets/fitness-app-assets/cardio.png'),
     },
     {
-        name: 'chest',
+        name: 'Chest',
         image: require('../assets/fitness-app-assets/chest.png'),
     },
     {
-        name: 'lower arms',
+        name: 'Lower arms',
         image: require('../assets/fitness-app-assets/lowerArms.png'),
     },
     {
-        name: 'lower legs',
+        name: 'Lower legs',
         image: require('../assets/fitness-app-assets/lowerLegs.png'),
     },
     {
-        name: 'neck',
+        name: 'Neck',
         image: require('../assets/fitness-app-assets/neck.png'),
     },
     {
-        name: 'shoulders',
+        name: 'Shoulders',
         image: require('../assets/fitness-app-assets/shoulders.png'),
     },
     {
-        name: 'upper arms',
+        name: 'Upper arms',
         image: require('../assets/fitness-app-assets/upperArms.png'),
     },
     {
-        name: 'upper legs',
+        name: 'Upper legs',
         image: require('../assets/fitness-app-assets/upperLegs.png'),
     },
     {
-        name: 'waist',
+        name: 'Waist',
         image: require('../assets/fitness-app-assets/waist.png'),
     }
 ]

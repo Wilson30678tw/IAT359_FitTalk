@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ImageBackground, ScrollView, FlatList, Touchabl
 import { useNavigation } from '@react-navigation/native';
 import { ProgressChart } from 'react-native-chart-kit';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
+import { bodyParts } from '../constants';
 
 const FitnessTaskScreen = () => {
   // Mock data for the chart
@@ -12,20 +13,6 @@ const FitnessTaskScreen = () => {
   };
 
   const navigation = useNavigation();
-
-  // Exercise list with images
-  const exercises = [
-    { id: '1', name: 'Back', duration: '10 min', calories: '120 kcal', image: require('../assets/fitness-app-assets/back.png') },
-    { id: '2', name: 'Cardio', duration: '30 min', calories: '90 kcal', image: require('../assets/fitness-app-assets/cardio.png') },
-    { id: '3', name: 'Chest', duration: '10 min', calories: '110 kcal', image: require('../assets/fitness-app-assets/chest.png') },
-    { id: '4', name: 'Lower Arms', duration: '15 min', calories: '80 kcal', image: require('../assets/fitness-app-assets/lowerArms.png') },
-    { id: '5', name: 'Lower Legs', duration: '15 min', calories: '80 kcal', image: require('../assets/fitness-app-assets/lowerLegs.png') },
-    { id: '6', name: 'Neck', duration: '10 min', calories: '80 kcal', image: require('../assets/fitness-app-assets/neck.png') },
-    { id: '7', name: 'Shoulders', duration: '10 min', calories: '80 kcal', image: require('../assets/fitness-app-assets/shoulders.png') },
-    { id: '8', name: 'Upper Arms', duration: '15 min', calories: '80 kcal', image: require('../assets/fitness-app-assets/upperArms.png') },
-    { id: '9', name: 'Upper Legs', duration: '15 min', calories: '80 kcal', image: require('../assets/fitness-app-assets/upperLegs.png') },
-    { id: '10', name: 'Waist', duration: '10 min', calories: '80 kcal', image: require('../assets/fitness-app-assets/waist.png') },
-  ];
 
   return (
     <ImageBackground 
@@ -72,22 +59,26 @@ const FitnessTaskScreen = () => {
           <View style={styles.taskItem}><Text style={styles.taskTitle}>Upper limb training</Text></View>
           <View style={styles.taskItem}><Text style={styles.taskTitle}>Total Body Fat Burning</Text></View>
         </View>
+
+
+        {/* Citation: The exercises and how to setup the API was learned from https://www.youtube.com/watch?v=_MttMnZ3CeI */}
+        {/* API Used: https://rapidapi.com/justin-WFnsXH_t6/api/exercisedb */}
         
         {/* Exercise List with Images */}
         <Text style={styles.taskListHeader}>Exercises</Text>
         <FlatList
           style={styles.exerciseContainer}
-          data={exercises}
+          data={bodyParts}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <TouchableOpacity 
               style={styles.exerciseItem}
-              onPress={() => navigation.navigate('ExerciseDetail', { exercise: item })}
+              onPress={() => navigation.navigate('ExerciseScreen', { bodyPart: item.name.toLowerCase() })}
             >
               <Image source={item.image} style={styles.exerciseImage} />
               <View style={styles.exerciseTextContainer}>
                 <Text style={styles.exerciseName}>{item.name}</Text>
-                <Text style={styles.exerciseInfo}>{item.duration} | {item.calories}</Text>
+                {/* <Text style={styles.exerciseInfo}>{item.duration} | {item.calories}</Text> */}
               </View>
             </TouchableOpacity>
           )}
