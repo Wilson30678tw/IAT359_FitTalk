@@ -4,6 +4,13 @@ import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView, ImageBackg
 const HomeScreen = () => {
   return (
     <ImageBackground source={require("../assets/Home.png")} style={styles.background}>
+            {/* 🔥 獨立放置相機按鈕，確保不被 ScrollView 影響 */}
+            <TouchableOpacity 
+        style={styles.cameraButton} 
+        onPress={() => navigation.navigate('CameraScreen')}
+      >
+        <Text style={styles.cameraIcon}>📷</Text>
+      </TouchableOpacity>
       <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.title}>Whats New</Text>
         <View style={styles.card}>

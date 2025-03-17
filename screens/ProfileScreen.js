@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
-import {  View, Text, StyleSheet, FlatList, Image, TouchableOpacity,  ScrollView } from 'react-native';
-import { auth } from '../firebaseConfig'; // 確保 Firebase 正確導入
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, FlatList, Image, TouchableOpacity, Alert } from 'react-native';
+import { auth, db } from '../firebaseConfig'; // 確保 Firebase 正確導入
 import { signOut } from "firebase/auth";
-import { Alert } from "react-native";
+import { doc, getDoc } from "firebase/firestore"; // Firestore 讀取數據
 import { useNavigation } from '@react-navigation/native';
 
-// 📸 貼文數據（使用你的 `assets` 圖片）
 const userPosts = [
   { id: '1', image: require('../assets/post1.png') },
   { id: '2', image: require('../assets/post2.png') },
@@ -13,13 +12,11 @@ const userPosts = [
   { id: '4', image: require('../assets/post4.png') },
 ];
 
-// ❤️ Like 貼文 (暫時重複使用 `post1.png` & `post2.png` 作為範例)
 const likedPosts = [
   { id: '1', image: require('../assets/post1.png') },
   { id: '2', image: require('../assets/post2.png') },
 ];
 
-// 💬 聊天訊息 (使用 `user1.png`, `user2.png`, `user3.png` 作為頭像)
 const messages = [
   { id: '1', name: 'Johnny', time: 'Just now', message: 'Sure! See you later!', avatar: require('../assets/user1.png') },
   { id: '2', name: 'Will', time: '1h ago', message: "That's cool!", avatar: require('../assets/user2.png') },
@@ -30,6 +27,26 @@ const messages = [
 const ProfileScreen = () => {
   const navigation = useNavigation();
   const [selectedTab, setSelectedTab] = useState('posts'); // 預設顯示自己的貼文
+  const [username, setUsername] = useState('Loading...'); // 🔹 預設為 Loading...
+  const [profileImage, setProfileImage] = useState(require('../assets/user1.png')); // 🔹 預設頭像
+
+  // 🔥 從 Firestore 讀取用戶數據
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const user = auth.currentUser;
+      if (user) {
+        const userDocRef = doc(db, "users", user.uid);
+        const userDocSnap = await getDoc(userDocRef);
+        
+        if (userDocSnap.exists()) {
+          setUsername(userDocSnap.data().username || "Unknown User"); // 更新用戶名
+          setProfileImage({ uri: userDocSnap.data().profileImage || "https://example.com/default-avatar.png" });
+        }
+      }
+    };
+
+    fetchUserData();
+  }, []);
   const handleSignOut = () => {
     console.log("🔴 Sign Out 按鈕被點擊");
     if (!auth.currentUser) {
@@ -58,8 +75,11 @@ const ProfileScreen = () => {
       <View style={styles.profileHeader}>
         <Image source={require('../assets/user1.png')} style={styles.profileAvatar} />
         <View>
-          <Text style={styles.username}>EmilyW</Text>
-          <Text style={styles.bio}>Powered by Strength! {"\n"}Strong mind, strong body. Pushing limits every day!</Text>
+        <View style={{ marginTop: 15 }}> 
+          <Text style={styles.username}>{username}</Text>
+        </View>
+        <View style={{ marginTop: 15 }}> <Text style={styles.bio}>Powered by Strength! {"\n"}Strong mind, strong body. Pushing limits every day!</Text>
+        </View>
         </View>
       </View>
 
@@ -146,7 +166,7 @@ const ProfileScreen = () => {
     </TouchableOpacity>
 
     <TouchableOpacity style={styles.settingItem}>
-      <Text style={styles.settingText}>🏛 About Vandusen</Text>
+      <Text style={styles.settingText}>🏛 About FitTalk</Text>
     </TouchableOpacity>
 
     {/* 🔴 登出按鈕 (Firebase Sign Out) */}
@@ -171,7 +191,7 @@ const styles = StyleSheet.create({
   profileHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingBottom: 20,
+    paddingBottom: 30,
     marginTop: 60,
   },
   profileAvatar: {
@@ -185,10 +205,13 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     color: '#fff',
+    marginTop: 80,
   },
   bio: {
+    
     fontSize: 14,
     color: '#aaa',
+    marginTop:20,
   },
   tabContainer: {
     flexDirection: 'row',

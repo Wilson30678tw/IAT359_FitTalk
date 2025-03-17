@@ -2,7 +2,6 @@ import { initializeApp, getApps, getApp } from "firebase/app";
 import { 
   getAuth, 
   setPersistence, 
-  browserLocalPersistence, 
   getReactNativePersistence 
 } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
@@ -20,19 +19,19 @@ const firebaseConfig = {
   measurementId: "G-G1579E9WV3"
 };
 
-// 🔹 檢查是否已初始化 Firebase，避免 `app/duplicate-app` 錯誤
-const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
+// 🔹 檢查 Firebase 是否已初始化，避免 `app/duplicate-app` 錯誤
+const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
 // 🔹 設置 Firebase Auth 並啟用持久化
 const auth = getAuth(app);
 setPersistence(auth, getReactNativePersistence(AsyncStorage))
   .then(() => console.log("✅ Firebase 持久化已啟用"))
-  .catch((error) => console.error("❌ Firebase 持久化設定失敗", error.message));
+  .catch((error) => console.error("❌ Firebase 持久化設定失敗:", error.message));
 
 // 🔹 初始化 Firestore 和 Storage
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-console.log("✅ Firebase Auth & Firestore 已成功初始化！");
+console.log("✅ Firebase 已成功初始化！");
 
 export { auth, db, storage };

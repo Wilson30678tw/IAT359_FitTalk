@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
   View, 
   Text, 
@@ -10,9 +10,11 @@ import {
   TextInput
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { db } from "../firebaseConfig";
+import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
 
-// 📸 貼文數據（確保 PNG 圖片引用正確）
-const momentsData = [
+// 📸 貼文數據（本地靜態數據）
+const localMomentsData = [
   { id: '1', user: 'EmilyW', image: require('../assets/post1.png'), avatar: require('../assets/user1.png') },
   { id: '2', user: 'Jessica', image: require('../assets/post2.png'), avatar: require('../assets/user2.png') },
   { id: '3', user: 'Will', image: require('../assets/post3.png'), avatar: require('../assets/user3.png') },
@@ -27,13 +29,33 @@ const storyUsers = [
   { id: '4', avatar: require('../assets/user4.png') },
 ];
 
-const MomentsScreen = () => {
+const ShareMomentsScreen = () => {
   const navigation = useNavigation();
+  const [firebaseMoments, setFirebaseMoments] = useState([]);
+
+  // 🔥 監聽 Firebase 貼文變化
+  useEffect(() => {
+    const q = query(collection(db, "moments"), orderBy("timestamp", "desc"));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const moments = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        user: doc.data().userName || "Unknown",
+        image: doc.data().imageUrl,
+        avatar: require('../assets/default-avatar.png'), // 🔹 Firebase 上傳的圖片沒有對應的使用者頭像，預設一個
+      }));
+      setFirebaseMoments(moments);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  // 🔥 合併本地數據與 Firebase 數據
+  const combinedMoments = [...firebaseMoments, ...localMomentsData];
 
   return (
     <View style={styles.container}>
       
-      {/* 🔍 搜索欄 & 訊息按鈕（透明按鈕） */}
+      {/* 🔍 搜索欄 & 訊息按鈕 */}
       <View style={styles.header}>
         <Text style={styles.logo}>FitTalk</Text>
         <TextInput 
@@ -58,9 +80,9 @@ const MomentsScreen = () => {
         ))}
       </ScrollView>
 
-      {/* 📸 貼文動態列表 */}
+      {/* 📸 貼文動態列表（顯示本地 + Firebase 上傳的貼文） */}
       <FlatList
-        data={momentsData}
+        data={combinedMoments}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <View style={styles.postContainer}>
@@ -68,7 +90,12 @@ const MomentsScreen = () => {
               <Image source={item.avatar} style={styles.avatar} />
               <Text style={styles.username}>{item.user}</Text>
             </View>
-            <Image source={item.image} style={styles.postImage} />
+            {/* 🔹 如果是 Firebase 上傳的圖片，使用 URL 加載 */}
+            {typeof item.image === "string" ? (
+              <Image source={{ uri: item.image }} style={styles.postImage} />
+            ) : (
+              <Image source={item.image} style={styles.postImage} />
+            )}
             <View style={styles.postActions}>
               <TouchableOpacity>
                 <Image source={require('../assets/heart.png')} style={styles.icon} />
@@ -111,10 +138,10 @@ const styles = StyleSheet.create({
     flex: 3,
   },
   messageButton: {
-    width: 40, // 設定按鈕範圍
+    width: 40,
     height: 40,
     marginLeft: 10,
-    backgroundColor: 'transparent', // 透明背景
+    backgroundColor: 'transparent',
     position: 'absolute',
     right: 15,
     top: 40,
@@ -183,4 +210,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default MomentsScreen;
+export default ShareMomentsScreen;

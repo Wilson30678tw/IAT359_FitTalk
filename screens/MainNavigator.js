@@ -1,27 +1,61 @@
 import React from 'react';
-import { Image } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { View, TouchableOpacity, StyleSheet } from 'react-native';
-import HomeScreen from '../screens/HomePage';
+import { createStackNavigator } from '@react-navigation/stack';
+import { View, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import HomePage from '../screens/HomePage';
 import CameraScreen from '../screens/CameraScreen';
+import MapScreen from '../screens/MapScreen';
 import MomentsScreen from '../screens/ShareMomentsScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import ExerciseNavigator from '../screens/ExerciseNavigator';
 
 const Tab = createBottomTabNavigator();
+const Stack = createStackNavigator();
+
+// 🔥 這是主要的 Bottom Tab Navigation
+const BottomTabs = ({ navigation }) => {
+  return (
+    <>
+      <Tab.Navigator screenOptions={{ headerShown: false }} tabBar={(props) => <CustomTabBar {...props} />}>
+        <Tab.Screen name="Home" component={HomePage} />
+        <Tab.Screen name="Fitness" component={ExerciseNavigator} />
+        <Tab.Screen name="Map" component={MapScreen} />
+        <Tab.Screen name="Moments" component={MomentsScreen} />
+        <Tab.Screen name="Profile" component={ProfileScreen} />
+      </Tab.Navigator>
+
+      {/* 🔥 全局 Camera 按鈕 */}
+      <TouchableOpacity 
+        style={styles.cameraButton} 
+        onPress={() => navigation.navigate('CameraScreen')}
+      >
+        <Image source={require("../assets/camera-icon.png")} style={styles.cameraIcon} />
+      </TouchableOpacity>
+    </>
+  );
+};
+
+// 🔥 這是主要的 Stack Navigation
+const MainNavigator = () => {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="MainTabs" component={BottomTabs} />
+      <Stack.Screen name="CameraScreen" component={CameraScreen} />
+    </Stack.Navigator>
+  );
+};
 
 const CustomTabBar = ({ state, navigation }) => {
   const tabImages = {
     Home: require("../assets/Navbar_Home.png"),
     Fitness: require("../assets/Navbar_Fitness.png"),
-    Camera: require("../assets/Navbar_Map.png"),
+    Map: require("../assets/Navbar_Map.png"),
     Moments: require("../assets/Navbar_Moments.png"),
     Profile: require("../assets/Navbar_Profile.png"),
   };
 
   return (
     <View style={styles.navBarContainer}>
-      {/* 這個 View 可以手動調整 Navbar 的大小 */}
       <View style={styles.navBar}>
         <Image source={tabImages[state.routes[state.index].name]} style={styles.navImage} />
       </View>
@@ -30,7 +64,7 @@ const CustomTabBar = ({ state, navigation }) => {
         const positions = {
           Home: { left: "7%" },
           Fitness: { left: "25%" },
-          Camera: { left: "45%" },
+          Map: { left: "45%" },
           Moments: { left: "65%" },
           Profile: { left: "85%" },
         };
@@ -38,7 +72,7 @@ const CustomTabBar = ({ state, navigation }) => {
         return (
           <TouchableOpacity
             key={route.name}
-            style={[styles.navButton, { left: positions[route.name].left }]}
+            style={[styles.navButton, { left: positions[route.name]?.left }]}
             onPress={() => navigation.navigate(route.name)}
           />
         );
@@ -47,39 +81,23 @@ const CustomTabBar = ({ state, navigation }) => {
   );
 };
 
-const MainNavigator = () => {
-  return (
-    <Tab.Navigator
-      screenOptions={{ headerShown: false }}
-      tabBar={(props) => <CustomTabBar {...props} />}
-    >
-      <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Fitness" component={ExerciseNavigator} />
-      <Tab.Screen name="Camera" component={CameraScreen} />
-      <Tab.Screen name="Moments" component={MomentsScreen} />
-      <Tab.Screen name="Profile" component={ProfileScreen} />
-    </Tab.Navigator>
-  );
-};
-
-
 const styles = StyleSheet.create({
   navBarContainer: {
     position: 'absolute',
     bottom: 16,
     width: '100%',
-    alignItems: 'center', // 讓內容居中
+    alignItems: 'center',
   },
   navBar: {
     width: '100%',
-    height: 84, // 這裡你可以手動調整 Navbar 的高度
+    height: 84,
     justifyContent: 'center',
     alignItems: 'center',
   },
   navImage: {
     width: '100%',
-    height: '100%', // 讓圖片適應 `navBar` 大小
-    resizeMode: 'contain', // 避免圖片變形
+    height: '100%',
+    resizeMode: 'contain',
   },
   navButton: {
     position: 'absolute',
@@ -87,7 +105,21 @@ const styles = StyleSheet.create({
     height: 50,
     backgroundColor: 'transparent',
   },
+  // 🔥 Camera 按鈕樣式，讓它懸浮在右上角
+  cameraButton: {
+    position: 'absolute',
+    top: 40,
+    right: 20,
+    backgroundColor: 'rgba(0,0,0,0.6)', // 半透明背景，避免被 UI 蓋住
+    padding: 10,
+    borderRadius: 30,
+    zIndex: 10, // 確保按鈕在最上層
+  },
+  cameraIcon: {
+    width: 30,
+    height: 30,
+    tintColor: 'white',
+  },
 });
-
 
 export default MainNavigator;

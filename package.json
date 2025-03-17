@@ -19,6 +19,8 @@
     "@react-navigation/stack": "^7.1.2",
     "expo": "52.0.38",
     "expo-camera": "~16.0.18",
+    "expo-crypto": "~14.0.2",
+    "expo-image-picker": "~16.0.6",
     "expo-status-bar": "~2.0.1",
     "firebase": "^11.4.0",
     "react": "18.3.1",
