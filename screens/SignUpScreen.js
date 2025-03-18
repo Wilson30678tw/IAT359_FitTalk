@@ -14,50 +14,37 @@ const SignUpScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(false);
 
   const handleSignUp = async () => {
-    console.log("🔥 按下 SignUp 按鈕！");
-    console.log(`🔍 name=${name}, email=${email}, password=${password}, confirmPassword=${confirmPassword}`);
-
     if (!name || !email || !password || !confirmPassword) {
       Alert.alert("Error", "Please fill in all fields!");
       return;
     }
-
+  
     if (password !== confirmPassword) {
-      Alert.alert("Error", "The passwords entered twice do not match!");
+      Alert.alert("Error", "Passwords do not match!");
       return;
     }
-
-    setLoading(true);
-
+  
     try {
-      console.log("🚀 嘗試 Firebase 註冊...");
+      setLoading(true);
+  
+      // 🔹 創建 Firebase 用戶（Firebase 會自動登入）
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-      const uid = user.uid;
-
-      console.log("✅ 註冊成功！", user.email);
-
-      // 🔹 Firestore 自動創建用戶文檔
-      await setDoc(doc(db, "users", uid), {
-        username: name, 
+  
+      // 🔹 在 Firestore 創建用戶數據
+      await setDoc(doc(db, "users", user.uid), {
+        username: name,
         email: email,
-        profileImage: "https://example.com/default-avatar.png", // 預設頭像
-        createdAt: serverTimestamp(), // 記錄創建時間
+        profileImage: "https://example.com/default-avatar.png",
+        createdAt: serverTimestamp(),
       });
-
-      console.log("📄 Firestore 文檔創建成功！");
-
-      Alert.alert("Sign up successful", `Welcome ${name}！Please log in`, [
-        {
-          text: "OK",
-          onPress: () => {
-            console.log("🔄 正在跳转到登录页面...");
-            setTimeout(() => navigation.replace("SignIn"), 500);
-          },
-        },
+  
+      console.log("✅ 註冊成功！");
+  
+      Alert.alert("Sign up successful", "Please log in with your new account.", [
+        { text: "OK", onPress: () => navigation.replace("SignIn") }, // ✅ 按 OK 才跳轉
       ]);
     } catch (error) {
-      console.log("❌ 注册失败：", error.message);
       Alert.alert("Sign up failed", getErrorMessage(error.code));
     } finally {
       setLoading(false);
