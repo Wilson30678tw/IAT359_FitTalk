@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
     height: 50,
     backgroundColor: 'transparent',
   },
-  // 🔥 Camera 按鈕樣式，讓它懸浮在右上角
+  // Camera 按鈕樣式，讓它懸浮在右上角
   cameraButton: {
     position: 'absolute',
     top: 40,
