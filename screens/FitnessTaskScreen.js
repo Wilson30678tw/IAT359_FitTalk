@@ -90,9 +90,14 @@ const FitnessTaskScreen = () => {
   return (
 
     <ImageBackground 
-      source={require('../assets/FitTaskBG.png')} // Background image
+      source={require('../assets/FitTaskBlankBG.png')} // Background image
       style={styles.background}
     >
+
+    <View style={styles.logoContainer}>
+      <Image source={require("../assets/FitTalk_Logo.png")} style={styles.logo} />
+    </View>
+
       <ScrollView contentContainerStyle={styles.container}>
         
        {/* 圓形進度圖 (步數 & 卡路里) */}
@@ -174,6 +179,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 20,
     paddingTop: 80, 
+  },
+  logoContainer: {
+    position: 'absolute',
+    top: 40, // Adjust the distance from the top
+    left: 20, // Adjust the distance from the left
+    zIndex: 10, // Ensures it stays above the map
+  },
+  logo: {
+    width: 100, // Adjust size as needed
+    height: 50, // Adjust size as needed
+    resizeMode: 'contain',
   },
   progressContainer: {
     flexDirection: 'row',

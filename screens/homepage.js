@@ -56,7 +56,11 @@ const HomeScreen = () => {
   }, []);
 
   return (
-    <ImageBackground source={require("../assets/Home.png")} style={styles.background}>
+    <ImageBackground source={require("../assets/FitTaskBlankBG.png")} style={styles.background}>
+      <View style={styles.logoContainer}>
+        <Image source={require("../assets/FitTalk_Logo.png")} style={styles.logo} />
+      </View>
+
       <TouchableOpacity style={styles.cameraButton} onPress={() => navigation.navigate("CameraScreen")}>
         <Text style={styles.cameraIcon}>📷</Text>
       </TouchableOpacity>
@@ -102,6 +106,17 @@ const styles = StyleSheet.create({
   container: {
     padding: 20,
     marginTop: 500,
+  },
+  logoContainer: {
+    position: 'absolute',
+    top: 40, // Adjust the distance from the top
+    left: 20, // Adjust the distance from the left
+    zIndex: 10, // Ensures it stays above the map
+  },
+  logo: {
+    width: 100, // Adjust size as needed
+    height: 50, // Adjust size as needed
+    resizeMode: 'contain',
   },
   timeWeatherContainer: {
     flexDirection: "column",

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Alert, ImageBackground, TouchableOpacity, Text } from 'react-native';
+import { View, StyleSheet, Alert, ImageBackground, TouchableOpacity, Text, Image } from 'react-native';
 import MapView, { Marker, Polyline } from 'react-native-maps';
 import * as Location from 'expo-location';
+
 
 const MapScreen = () => {
   const [location, setLocation] = useState(null);
@@ -51,11 +52,15 @@ const MapScreen = () => {
     <View style={styles.container}>
       {/* Background Image */}
       <ImageBackground 
-        source={require("../assets/Map_BG.png")} 
+        source={require("../assets/FitTaskBlankBG.png")} 
         style={styles.background}
       />
 
-      {/* Map Container to overlay on top of ImageBackground */}
+      <View style={styles.logoContainer}>
+        <Image source={require("../assets/FitTalk_Logo.png")} style={styles.logo} />
+      </View>
+
+      {/* Map Container*/}
       <View style={styles.mapContainer}>
         <MapView
             style={styles.map}
@@ -100,6 +105,17 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
     resizeMode: "cover",
+  },
+  logoContainer: {
+    position: 'absolute',
+    top: 40, // Adjust the distance from the top
+    left: 20, // Adjust the distance from the left
+    zIndex: 10, // Ensures it stays above the map
+  },
+  logo: {
+    width: 100, // Adjust size as needed
+    height: 50, // Adjust size as needed
+    resizeMode: 'contain',
   },
   mapContainer: {
     ...StyleSheet.absoluteFillObject,
