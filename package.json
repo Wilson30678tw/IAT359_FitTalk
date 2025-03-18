@@ -22,6 +22,7 @@
     "expo-crypto": "~14.0.2",
     "expo-image-picker": "~16.0.6",
     "expo-location": "~18.0.8",
+    "expo-sensors": "~14.0.2",
     "expo-status-bar": "~2.0.1",
     "firebase": "^11.4.0",
     "moment": "^2.30.1",
@@ -35,8 +36,7 @@
     "react-native-screens": "~4.4.0",
     "react-native-svg": "^15.8.0",
     "react-native-vector-icons": "^10.2.0",
-    "undefined": "\\",
-    "expo-sensors": "~14.0.2"
+    "undefined": "\\"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
