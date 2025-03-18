@@ -1,4 +1,5 @@
 export const weatherApiKey = 'ae514f827389449eb4b134257251703';
+// export const weatherApiKey = '8ff41bf0c5c778ba4e6d5c2f45a6e419';
 export const rapidApiKey = '988b02093cmsh6ef5dc0b74ab88bp153164jsn64904617bce7';
 
 export const bodyParts = [

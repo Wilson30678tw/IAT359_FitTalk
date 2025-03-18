@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView, ImageBackground } from "react-native";
 import * as Location from "expo-location";
+import { useNavigation } from "@react-navigation/native";
 import { weatherApiKey } from "../constants";
-
 
 const HomeScreen = () => {
   const [currentTime, setCurrentTime] = useState("");
   const [weather, setWeather] = useState(null);
   const [location, setLocation] = useState(null);
+  const navigation = useNavigation();
 
   // Function to get current time
   const updateTime = () => {
@@ -15,24 +16,32 @@ const HomeScreen = () => {
     setCurrentTime(now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }));
   };
 
+  // Format Date
+  const now = new Date();
+  const formattedDate = now.toLocaleDateString("en-US", {
+    weekday: "long",
+    month: "short",
+    day: "2-digit",
+  });
+
   // Function to get weather data
   const fetchWeather = async (latitude, longitude) => {
     try {
       const response = await fetch(
-        `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=metric&appid=${weatherApiKey}`
+        `https://api.weatherapi.com/v1/current.json?key=${weatherApiKey}&q=${latitude},${longitude}&aqi=no`
       );
       const data = await response.json();
-      console.log("Weather API Response:", data); // Debugging output
-      if (data.main) {
+      console.log("Weather API Response:", data);
+
+      if (data.current) {
         setWeather(data);
       } else {
-        console.error("Error: Weather data structure missing `main` key", data);
+        console.error("Error: Unexpected weather data format", data);
       }
     } catch (error) {
       console.error("Error fetching weather:", error);
     }
   };
-  
 
   // Function to get user's location
   const getLocation = async () => {
@@ -41,11 +50,11 @@ const HomeScreen = () => {
       console.log("Permission to access location was denied");
       return;
     }
-  
+
     let location = await Location.getCurrentPositionAsync({});
+    setLocation({ latitude: location.coords.latitude, longitude: location.coords.longitude });
     fetchWeather(location.coords.latitude, location.coords.longitude);
   };
-  
 
   // Run these functions when the component mounts
   useEffect(() => {
@@ -68,23 +77,35 @@ const HomeScreen = () => {
       <ScrollView contentContainerStyle={styles.container}>
         {/* Time and Weather Section */}
         <View style={styles.timeWeatherContainer}>
-          <Text style={styles.time}>{currentTime}</Text>
-          
-          {weather && weather.current && (
-            <Text style={styles.weather}>
-              {weather.location.name} • {Math.round(weather.current.temp_c)}°C {weather.current.condition.text}
-            </Text>
-          )}
+          {/* Left Side: Time & Date */}
+          <View style={styles.timeContainer}>
+            <Text style={styles.time}>{currentTime}</Text>
+            <Text style={styles.date}>{formattedDate}</Text>
+          </View>
 
+          {/* Right Side: Weather Info */}
+          {weather && weather.current && (
+            <View style={styles.weatherContainer}>
+              <View style={styles.weatherLocationRow}>
+                <Image source={require("../assets/location_icon.png")} style={styles.locationIcon} />
+                <Text style={styles.weatherLocation}>{weather.location.name}</Text>
+              </View>
+              <View style={styles.weatherInfo}>
+                <Text style={styles.weatherText}>{Math.round(weather.current.temp_c)}°C</Text>
+                <Image source={{ uri: `https:${weather.current.condition.icon}` }} style={styles.weatherIcon} />
+              </View>
+            </View>
+          )}
         </View>
 
-        <Text style={styles.title}>Whats New</Text>
+        <Text style={styles.title}>What's New</Text>
         <View style={styles.card}>
           <Image source={require("../assets/Workout.png")} style={styles.image} />
           <TouchableOpacity style={styles.exploreButton}>
             <Text style={styles.exploreText}>Explore More</Text>
           </TouchableOpacity>
         </View>
+
         <Text style={styles.subtitle}>Best Fit For You</Text>
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Home Fitness</Text>
@@ -98,6 +119,7 @@ const HomeScreen = () => {
   );
 };
 
+// Fixed & Optimized Styles
 const styles = StyleSheet.create({
   background: {
     flex: 1,
@@ -108,30 +130,79 @@ const styles = StyleSheet.create({
     marginTop: 100,
   },
   logoContainer: {
-    position: 'absolute',
-    top: 40, // Adjust the distance from the top
-    left: 20, // Adjust the distance from the left
-    zIndex: 10, // Ensures it stays above the map
+    position: "absolute",
+    top: 40,
+    left: 20,
+    zIndex: 10,
   },
   logo: {
-    width: 100, // Adjust size as needed
-    height: 50, // Adjust size as needed
-    resizeMode: 'contain',
+    width: 100,
+    height: 50,
+    resizeMode: "contain",
   },
+
+  // Time & Weather Section
   timeWeatherContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between", // Time on left, weather on right
+    alignItems: "center",
+    width: "100%",
+    paddingHorizontal: 20,
+    marginBottom: 20,
+  },
+
+  // Left Side (Time & Date)
+  timeContainer: {
     flexDirection: "column",
-    alignItems: "left",
-    marginBottom: 50,
+    marginTop: -20,
+    marginLeft: -20,
   },
   time: {
-    fontSize: 32,
+    fontSize: 40,
     fontWeight: "bold",
     color: "#fff",
   },
-  weather: {
-    fontSize: 20,
-    color: "#fff",
+  date: {
+    fontSize: 18,
+    color: "#ccc",
   },
+
+  // Right Side (Weather & Location)
+  weatherContainer: {
+    alignItems: "flex-end",
+  },
+  weatherLocationRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 5,
+  },
+  weatherLocation: {
+    fontSize: 16,
+    color: "#fff",
+    marginLeft: 5, 
+  },
+  locationIcon: {
+    width: 20,  
+    height: 20, 
+    resizeMode: "contain",
+    tintColor: "#fff",
+    marginVertical: 2,
+  },
+  weatherInfo: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  weatherText: {
+    fontSize: 24,
+    color: "#fff",
+    marginRight: 5,
+  },
+  weatherIcon: {
+    width: 50,
+    height: 50,
+  },
+
+  // Other styles remain unchanged
   title: {
     fontSize: 24,
     fontWeight: "bold",
@@ -159,24 +230,6 @@ const styles = StyleSheet.create({
     color: "#fff",
     textAlign: "center",
     fontWeight: "bold",
-  },
-  subtitle: {
-    fontSize: 20,
-    color: "#fff",
-    marginBottom: 5,
-  },
-  cardTitle: {
-    fontSize: 18,
-    color: "#fff",
-    fontWeight: "bold",
-  },
-  row: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 10,
-  },
-  info: {
-    color: "#fff",
   },
 });
 
