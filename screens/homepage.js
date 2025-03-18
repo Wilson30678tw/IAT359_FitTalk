@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
   },
   container: {
     padding: 20,
-    marginTop: 500,
+    marginTop: 100,
   },
   logoContainer: {
     position: 'absolute',
@@ -120,8 +120,8 @@ const styles = StyleSheet.create({
   },
   timeWeatherContainer: {
     flexDirection: "column",
-    alignItems: "center",
-    marginBottom: 20,
+    alignItems: "left",
+    marginBottom: 50,
   },
   time: {
     fontSize: 32,
