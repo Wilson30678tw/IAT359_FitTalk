@@ -47,12 +47,12 @@ const styles = StyleSheet.create({
     position: 'absolute',
   },
   signInButton: {
-    backgroundColor: 'rgba(255, 165, 0, 0.5)',
-    bottom: 140,
+    backgroundColor: 'rgba(255, 166, 0, 0)',
+    bottom: 130,
   },
   signUpButton: {
-    backgroundColor: 'rgba(255, 255, 255, 0.5)',
-    bottom: 60,
+    backgroundColor: 'rgba(255, 255, 255, 0)',
+    bottom: 40,
   },
 });
 

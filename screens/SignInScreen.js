@@ -121,7 +121,7 @@ const styles = StyleSheet.create({
   },
   emailInput: {
     marginBottom: 15,
-    marginTop: -190, // 把 Email 欄往上移
+    marginTop: -192, // 把 Email 欄往上移
   },
   passwordInput: {
     marginBottom: 25,
