@@ -69,10 +69,7 @@ const HomeScreen = () => {
       <View style={styles.logoContainer}>
         <Image source={require("../assets/FitTalk_Logo.png")} style={styles.logo} />
       </View>
-
-      <TouchableOpacity style={styles.cameraButton} onPress={() => navigation.navigate("CameraScreen")}>
-        <Text style={styles.cameraIcon}>📷</Text>
-      </TouchableOpacity>
+      
 
       <ScrollView contentContainerStyle={styles.container}>
         {/* Time and Weather Section */}

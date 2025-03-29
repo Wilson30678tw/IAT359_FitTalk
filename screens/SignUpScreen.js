@@ -35,7 +35,7 @@ const SignUpScreen = ({ navigation }) => {
       await setDoc(doc(db, "users", user.uid), {
         username: name,
         email: email,
-        profileImage: "https://example.com/default-avatar.png",
+        profileImage: "https://i.imgur.com/ha1TKss.png",
         createdAt: serverTimestamp(),
       });
   

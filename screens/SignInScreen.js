@@ -32,9 +32,7 @@ const SignInScreen = ({ navigation }) => {
   
       // ✅ 確保 `Alert` 只顯示一次
       setLoading(false);
-      Alert.alert("✅ Sign-in Successful", `Welcome back, ${user.email}!`, [
-        { text: "OK", onPress: () => navigation.replace("Main") },
-      ]);
+      Alert.alert("✅ Sign-in Successful", `Welcome back, ${user.email}!`);
     } catch (error) {
       console.log("❌ Sign-in failed:", error.message);
       

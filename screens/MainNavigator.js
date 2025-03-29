@@ -2,7 +2,7 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import { View, Image, TouchableOpacity, StyleSheet } from 'react-native';
-import HomePage from '../screens/HomePage';
+import HomePage from './homepage';
 import CameraScreen from '../screens/CameraScreen';
 import MapScreen from '../screens/MapScreen';
 import MomentsScreen from '../screens/ShareMomentsScreen';
