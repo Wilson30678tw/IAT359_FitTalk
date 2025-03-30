@@ -139,10 +139,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#543F2E",
   },
   nameInput: {
-    top: -170,  
+    top: -164,  
   },
   emailInput: {
-    top: -72,  
+    top: -70,  
   },
   passwordInput: {
     top: 22,   

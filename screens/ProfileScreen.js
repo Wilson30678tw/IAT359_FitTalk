@@ -111,22 +111,22 @@ const ProfileScreen = () => {
 
         await updateDoc(doc(db, 'users', user.uid), { profileImage: imageUrl });
         setProfileImage({ uri: imageUrl });
-        Alert.alert('✅ Avatar updated!');
+        Alert.alert(' Avatar updated!');
       } catch (error) {
         console.error(error);
-        Alert.alert('❌ Failed to upload image.');
+        Alert.alert(' Failed to upload image.');
       }
     }
   };
 
   const handleSignOut = () => {
     if (!auth.currentUser) {
-      Alert.alert('登出失敗', '目前沒有已登入的帳戶');
+      Alert.alert('Logout Failed', 'No account is currently logged in');
       return;
     }
     signOut(auth)
       .then(() => {
-        Alert.alert('已登出', '您已成功登出', [
+        Alert.alert('Logged out !', 'You have successfully logged out.', [
           { text: 'OK', onPress: () => navigation.replace('SignIn') },
         ]);
       })

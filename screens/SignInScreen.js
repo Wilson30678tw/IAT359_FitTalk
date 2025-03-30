@@ -9,12 +9,14 @@ import {
   Alert 
 } from "react-native";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../firebaseConfig";
+import { auth, db } from "../firebaseConfig";
+import { doc, getDoc } from "firebase/firestore";
 
 const SignInScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  
 
   const handleSignIn = async () => {
     if (!email || !password) {
@@ -24,20 +26,27 @@ const SignInScreen = ({ navigation }) => {
 
     setLoading(true); // 開啟加載狀態
     try {
-      // 🔹 Firebase 驗證
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user; // 取得已登入的用戶資訊
+      const user = userCredential.user;
   
-      console.log("✅ Sign-in successful!", user.email);
-  
-      // ✅ 確保 `Alert` 只顯示一次
-      setLoading(false);
-      Alert.alert("✅ Sign-in Successful", `Welcome back, ${user.email}!`);
-    } catch (error) {
-      console.log("❌ Sign-in failed:", error.message);
+      // 🔹 從 Firestore 拿 username
+      const userDocRef = doc(db, "users", user.uid);
+      const userDocSnap = await getDoc(userDocRef);
       
+      let username = user.email; // fallback
+      if (userDocSnap.exists()) {
+        const data = userDocSnap.data();
+        if (data.username) {
+          username = data.username;
+        }
+      }
+  
       setLoading(false);
-      Alert.alert("❌ Sign-in Failed", getErrorMessage(error.code));
+      Alert.alert(" Sign-in Successful", `Welcome back, ${username}!`);
+    } catch (error) {
+      console.log(" Sign-in failed:", error.message);
+      setLoading(false);
+      Alert.alert("Sign-in Failed", getErrorMessage(error.code));
     }
   };
 
@@ -109,21 +118,21 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   input: {
-    width: "100%",
+    width: "105%",
     height: 50,
     borderWidth: 1,
-    borderColor: "#ccc",
+    borderColor: "#543F2E",
     borderRadius: 25, // 讓邊角更圓潤
     paddingHorizontal: 15,
     backgroundColor: "#543F2E",
   },
   emailInput: {
     marginBottom: 15,
-    marginTop: -192, // 把 Email 欄往上移
+    marginTop: -185, // 把 Email 欄往上移
   },
   passwordInput: {
     marginBottom: 25,
-    marginTop: 26, // 把 Password 欄往上移
+    marginTop: 24, // 把 Password 欄往上移
   },
   button: {
     position: "absolute",

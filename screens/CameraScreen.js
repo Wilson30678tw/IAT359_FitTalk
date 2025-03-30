@@ -1,11 +1,21 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, Button, Image, Alert } from "react-native";
+import {
+  View,
+  Text,
+  Button,
+  Image,
+  Alert,
+  StyleSheet,
+  ActivityIndicator,
+  TouchableOpacity,
+} from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import * as Crypto from "expo-crypto"; // ✅ 正確導入
+import * as Crypto from "expo-crypto";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, storage } from "../firebaseConfig";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
+import { Ionicons } from "@expo/vector-icons";
 
 const CameraScreen = ({ navigation }) => {
   const [image, setImage] = useState(null);
@@ -15,7 +25,7 @@ const CameraScreen = ({ navigation }) => {
     (async () => {
       const { status } = await ImagePicker.requestCameraPermissionsAsync();
       if (status !== "granted") {
-        alert("需要相機權限才能使用此功能");
+        Alert.alert("Permission denied", "Camera access is required.");
       }
     })();
   }, []);
@@ -32,7 +42,6 @@ const CameraScreen = ({ navigation }) => {
     }
   };
 
-  // ✅ 確保 generateUniqueFileName 被定義
   const generateUniqueFileName = async () => {
     return Crypto.randomUUID();
   };
@@ -48,56 +57,126 @@ const CameraScreen = ({ navigation }) => {
       const auth = getAuth();
       const user = auth.currentUser;
       if (!user) {
-        Alert.alert("❌ Please login first");
+        Alert.alert("❌ Please log in first");
         return;
       }
 
       const response = await fetch(image);
       const blob = await response.blob();
-      
-      // 🔥 確保 generateUniqueFileName 以 `await` 方式獲取 ID
+
       const uniqueFileName = await generateUniqueFileName();
       const fileName = `moments/${user.uid}/${uniqueFileName}.jpg`;
       const storageRef = ref(storage, fileName);
 
-      console.log("🔄 上傳中...");
       await uploadBytes(storageRef, blob);
       const downloadURL = await getDownloadURL(storageRef);
-      console.log("✅ 圖片已上傳:", downloadURL);
 
-      await saveImageToFirestore(user, downloadURL);
+      await addDoc(collection(db, "moments"), {
+        userId: user.uid,
+        userName: user.email,
+        imageUrl: downloadURL,
+        timestamp: serverTimestamp(),
+      });
+
+      Alert.alert("✅ Uploaded", "Photo uploaded to Moments!");
+      setImage(null);
+      navigation.goBack();
     } catch (error) {
-      console.error("❌ Failed to upload image:", error);
-      Alert.alert("❌ Failed to upload", "Please try again later");
+      console.error("Upload error:", error);
+      Alert.alert("❌ Failed", "Please try again.");
     }
     setUploading(false);
   };
 
-  const saveImageToFirestore = async (user, imageUrl) => {
-    try {
-      await addDoc(collection(db, "moments"), {
-        userId: user.uid,
-        userName: user.email,
-        imageUrl: imageUrl,
-        timestamp: serverTimestamp(),
-      });
-      console.log("✅ 圖片資訊已儲存到 Firestore");
-      Alert.alert("✅ success", "The image has been successfully uploaded to Moments!");
-      navigation.goBack(); // 上傳後自動返回 Moments 頁面
-    } catch (error) {
-      console.error("❌ 儲存到 Firestore 失敗:", error);
-    }
-  };
-
   return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-      <Text>📷 Camera Screen</Text>
-      <Button title="Take Photo" onPress={takePicture} />
-      {image && <Image source={{ uri: image }} style={{ width: 200, height: 200 }} />}
-      <Button title="Upload Picture" onPress={uploadImageToFirebase} disabled={uploading} />
-      <Button title="Return" onPress={() => navigation.goBack()} />
+    <View style={styles.container}>
+      <Text style={styles.header}>📷 Take a Photo</Text>
+
+      <TouchableOpacity style={styles.cameraButton} onPress={takePicture}>
+        <Ionicons name="camera-outline" size={28} color="#fff" />
+        <Text style={styles.buttonText}>Open Camera</Text>
+      </TouchableOpacity>
+
+      {image && (
+        <Image source={{ uri: image }} style={styles.previewImage} />
+      )}
+
+      {image && (
+        <TouchableOpacity
+          style={styles.uploadButton}
+          onPress={uploadImageToFirebase}
+          disabled={uploading}
+        >
+          {uploading ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <>
+              <Ionicons name="cloud-upload-outline" size={22} color="#fff" />
+              <Text style={styles.buttonText}>Upload to Moments</Text>
+            </>
+          )}
+        </TouchableOpacity>
+      )}
+
+      <TouchableOpacity style={styles.returnButton} onPress={() => navigation.goBack()}>
+        <Ionicons name="arrow-back" size={20} color="#E87E27" />
+        <Text style={[styles.buttonText, { color: "#E87E27" }]}>Back</Text>
+      </TouchableOpacity>
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#1A120B",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 20,
+  },
+  header: {
+    color: "#fff",
+    fontSize: 20,
+    marginBottom: 20,
+    fontWeight: "bold",
+  },
+  cameraButton: {
+    flexDirection: "row",
+    backgroundColor: "#E87E27",
+    padding: 12,
+    borderRadius: 25,
+    alignItems: "center",
+    marginBottom: 15,
+  },
+  uploadButton: {
+    flexDirection: "row",
+    backgroundColor: "#4CAF50",
+    padding: 12,
+    borderRadius: 25,
+    alignItems: "center",
+    marginTop: 20,
+  },
+  returnButton: {
+    flexDirection: "row",
+    marginTop: 30,
+    borderColor: "#E87E27",
+    borderWidth: 1,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 25,
+  },
+  buttonText: {
+    marginLeft: 10,
+    fontSize: 16,
+    color: "#fff",
+  },
+  previewImage: {
+    width: 280,
+    height: 280,
+    borderRadius: 12,
+    marginTop: 15,
+    resizeMode: "cover",
+  },
+});
 
 export default CameraScreen;
