@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView, ImageBackground } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+  ImageBackground,
+} from "react-native";
 import * as Location from "expo-location";
 import { useNavigation } from "@react-navigation/native";
 import { weatherApiKey } from "../constants";
@@ -56,6 +64,16 @@ const HomeScreen = () => {
     fetchWeather(location.coords.latitude, location.coords.longitude);
   };
 
+  const getFitnessSuggestion = () => {
+    if (!weather || !weather.current) return "Loading...";
+    const condition = weather.current.condition.text.toLowerCase();
+    if (condition.includes("rain")) return "🌧 Try indoor yoga or stretching.";
+    if (condition.includes("clear") || condition.includes("sunny"))
+      return "☀️ Perfect day for outdoor running or cycling.";
+    if (condition.includes("cloud")) return "⛅ Great for a walk or home workout.";
+    return "🏋️ Customize your own workout today!";
+  };
+
   // Run these functions when the component mounts
   useEffect(() => {
     updateTime();
@@ -66,13 +84,12 @@ const HomeScreen = () => {
 
   return (
     <ImageBackground source={require("../assets/FitTaskBlankBG.png")} style={styles.background}>
-      <View style={styles.logoContainer}>
-        <Image source={require("../assets/FitTalk_Logo.png")} style={styles.logo} />
-      </View>
-      
+      <View style={styles.wrapper}>
+        {/* Fixed Top Section */}
+        <View style={styles.logoContainer}>
+          <Image source={require("../assets/FitTalk_Logo.png")} style={styles.logo} />
+        </View>
 
-      <ScrollView contentContainerStyle={styles.container}>
-        {/* Time and Weather Section */}
         <View style={styles.timeWeatherContainer}>
           {/* Left Side: Time & Date */}
           <View style={styles.timeContainer}>
@@ -95,64 +112,75 @@ const HomeScreen = () => {
           )}
         </View>
 
-        <Text style={styles.title}>What's New</Text>
-        <View style={styles.card}>
-          <Image source={require("../assets/Workout.png")} style={styles.image} />
-          <TouchableOpacity style={styles.exploreButton}>
-            <Text style={styles.exploreText}>Explore More</Text>
-          </TouchableOpacity>
-        </View>
-
-        <Text style={styles.subtitle}>Best Fit For You</Text>
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Home Fitness</Text>
-          <View style={styles.row}>
-            <Text style={styles.info}>⏳ 30 min</Text>
-            <Text style={styles.info}>🔥 180 Kcal</Text>
+        {/* Scrollable Card Section */}
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
+          {/* What's New */}
+          <View style={styles.whatsNewSection}>
+            <Text style={styles.subTitle}>What's New</Text>
+            <Image
+              source={require("../assets/Workout.png")}
+              style={styles.newsImage}
+            />
+            <TouchableOpacity style={styles.exploreButton}>
+              <Text style={styles.exploreButtonText}>Explore More</Text>
+            </TouchableOpacity>
           </View>
-        </View>
-      </ScrollView>
+
+          {/* Fitness Suggestion */}
+          <Text style={styles.sectionTitle}>Best Fit For You</Text>
+          <View style={styles.fitnessCard}>
+            <View style={styles.fitnessHeader}>
+              <Text style={styles.fitnessTitle}>Home Fitness</Text>
+              <Text style={styles.fitnessMeta}>🕒 30 min   🔥 180 Kcal</Text>
+            </View>
+            <Image
+              source={require("../assets/homefitness.png")}
+              style={styles.fitnessImage}
+            />
+            <Text style={styles.fitnessDescription}>
+              {getFitnessSuggestion()}
+            </Text>
+          </View>
+
+          {/* Padding to avoid bottom tab overlap */}
+          <View style={{ height: 100 }} />
+        </ScrollView>
+      </View>
     </ImageBackground>
   );
 };
 
-// Fixed & Optimized Styles
 const styles = StyleSheet.create({
   background: {
     flex: 1,
     resizeMode: "cover",
   },
-  container: {
-    padding: 20,
-    marginTop: 100,
+  wrapper: {
+    flex: 1,
+  },
+  scrollContainer: {
+    paddingHorizontal: 20,
+    paddingBottom: 120,
   },
   logoContainer: {
-    position: "absolute",
-    top: 40,
-    left: 20,
-    zIndex: 10,
+    alignItems: "flex-start",
+    paddingHorizontal: 20,
+    paddingTop: 50,
   },
   logo: {
     width: 100,
     height: 50,
     resizeMode: "contain",
   },
-
-  // Time & Weather Section
   timeWeatherContainer: {
     flexDirection: "row",
-    justifyContent: "space-between", // Time on left, weather on right
+    justifyContent: "space-between",
     alignItems: "center",
-    width: "100%",
     paddingHorizontal: 20,
-    marginBottom: 20,
+    marginTop: 10,
   },
-
-  // Left Side (Time & Date)
   timeContainer: {
     flexDirection: "column",
-    marginTop: -20,
-    marginLeft: -20,
   },
   time: {
     fontSize: 40,
@@ -163,8 +191,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: "#ccc",
   },
-
-  // Right Side (Weather & Location)
   weatherContainer: {
     alignItems: "flex-end",
   },
@@ -176,14 +202,13 @@ const styles = StyleSheet.create({
   weatherLocation: {
     fontSize: 16,
     color: "#fff",
-    marginLeft: 5, 
+    marginLeft: 5,
   },
   locationIcon: {
-    width: 20,  
-    height: 20, 
+    width: 20,
+    height: 20,
     resizeMode: "contain",
     tintColor: "#fff",
-    marginVertical: 2,
   },
   weatherInfo: {
     flexDirection: "row",
@@ -198,35 +223,72 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
   },
-
-  // Other styles remain unchanged
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
+  whatsNewSection: {
+    marginTop: 30,
+    marginBottom: 30,
+  },
+  subTitle: {
+    fontSize: 18,
     color: "#fff",
+    fontWeight: "bold",
     marginBottom: 10,
   },
-  card: {
-    backgroundColor: "#5a3e2b",
-    padding: 40,
-    borderRadius: 10,
-    marginBottom: 15,
-  },
-  image: {
+  newsImage: {
     width: "100%",
-    height: 150,
-    borderRadius: 10,
+    height: 180,
+    borderRadius: 12,
+    resizeMode: "cover",
   },
   exploreButton: {
-    backgroundColor: "#f28c28",
-    padding: 10,
-    borderRadius: 5,
+    backgroundColor: "#E87E27",
+    alignSelf: "flex-start",
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 20,
     marginTop: 10,
   },
-  exploreText: {
+  exploreButtonText: {
     color: "#fff",
-    textAlign: "center",
     fontWeight: "bold",
+    fontSize: 14,
+  },
+  sectionTitle: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 12,
+  },
+  fitnessCard: {
+    backgroundColor: "#29231B",
+    padding: 16,
+    borderRadius: 16,
+    marginBottom: 20,
+  },
+  fitnessHeader: {
+    marginBottom: 10,
+  },
+  fitnessTitle: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  fitnessMeta: {
+    color: "#ccc",
+    fontSize: 14,
+    marginTop: 4,
+  },
+  fitnessImage: {
+    width: "100%",
+    height: 160,
+    borderRadius: 12,
+    resizeMode: "cover",
+    marginTop: 10,
+  },
+  fitnessDescription: {
+    marginTop: 12,
+    fontSize: 15,
+    color: "#fff",
+    lineHeight: 22,
   },
 });
 
