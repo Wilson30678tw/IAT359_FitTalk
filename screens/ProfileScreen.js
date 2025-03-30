@@ -1,5 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, Alert, TextInput } from 'react-native';
+import {
+  View,
+  Text,
+  FlatList,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+  Alert,
+  TextInput,
+} from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { auth, db } from '../firebaseConfig';
 import { signOut } from 'firebase/auth';
@@ -33,45 +42,43 @@ const ProfileScreen = () => {
   const [editingBio, setEditingBio] = useState(false);
   const [profileImage, setProfileImage] = useState(require('../assets/default-avatar.png'));
 
-  // 取得用戶資訊
   useEffect(() => {
     const fetchUserData = async () => {
       const user = auth.currentUser;
       if (user) {
-        const userRef = doc(db, "users", user.uid);
+        const userRef = doc(db, 'users', user.uid);
         const userSnap = await getDoc(userRef);
         if (userSnap.exists()) {
           const data = userSnap.data();
-          setUsername(data.username || "Unknown User");
-          setBio(data.bio || "");
+          setUsername(data.username || 'Unknown User');
+          setBio(data.bio || '');
           if (data.profileImage) {
             setProfileImage({ uri: data.profileImage });
           }
         }
       }
     };
+
     fetchUserData();
   }, []);
 
-  // 儲存 Bio 到 Firestore
   const saveBioToFirestore = async () => {
-    const user = auth.currentUser;
-    if (!user) return;
     try {
-      await updateDoc(doc(db, "users", user.uid), { bio });
+      const user = auth.currentUser;
+      if (!user) return;
+      await updateDoc(doc(db, 'users', user.uid), { bio });
       setEditingBio(false);
-      Alert.alert("Bio updated!");
+      Alert.alert('✅ Bio updated!');
     } catch (error) {
-      console.error("❌ Failed to update bio:", error);
-      Alert.alert("Error", "Unable to update bio.");
+      console.error('Error updating bio:', error);
+      Alert.alert('❌ Failed to update bio.');
     }
   };
 
-  // 上傳頭像到 Imgur 並更新 Firestore
   const pickAndUploadAvatarToImgur = async () => {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permission.granted) {
-      Alert.alert("Permission Denied", "Photo permission is required.");
+      Alert.alert('Permission Denied', 'Photo permission is required.');
       return;
     }
 
@@ -84,6 +91,7 @@ const ProfileScreen = () => {
 
     if (!result.canceled) {
       const base64 = result.assets[0].base64;
+
       try {
         const response = await fetch('https://api.imgur.com/3/image', {
           method: 'POST',
@@ -95,30 +103,36 @@ const ProfileScreen = () => {
         });
 
         const data = await response.json();
-        if (!data.success) throw new Error("Imgur upload failed");
+        if (!data.success) throw new Error('Imgur upload failed');
 
         const imageUrl = data.data.link;
         const user = auth.currentUser;
         if (!user) return;
 
-        await updateDoc(doc(db, "users", user.uid), { profileImage: imageUrl });
+        await updateDoc(doc(db, 'users', user.uid), { profileImage: imageUrl });
         setProfileImage({ uri: imageUrl });
-        Alert.alert("✅ Avatar updated!");
+        Alert.alert('✅ Avatar updated!');
       } catch (error) {
         console.error(error);
-        Alert.alert("❌ Failed to upload to Imgur.");
+        Alert.alert('❌ Failed to upload image.');
       }
     }
   };
 
   const handleSignOut = () => {
     if (!auth.currentUser) {
-      Alert.alert("登出失敗", "沒有已登入的帳戶");
+      Alert.alert('登出失敗', '目前沒有已登入的帳戶');
       return;
     }
     signOut(auth)
-      .then(() => navigation.replace("SignIn"))
-      .catch((error) => Alert.alert("登出失敗", error.message));
+      .then(() => {
+        Alert.alert('已登出', '您已成功登出', [
+          { text: 'OK', onPress: () => navigation.replace('SignIn') },
+        ]);
+      })
+      .catch((error) => {
+        Alert.alert('登出失敗', error.message);
+      });
   };
 
   return (
@@ -149,13 +163,12 @@ const ProfileScreen = () => {
             </>
           ) : (
             <TouchableOpacity onLongPress={() => setEditingBio(true)}>
-              <Text style={styles.bio}>{bio || "No bio yet. Long press to edit."}</Text>
+              <Text style={styles.bio}>{bio || 'No bio yet. Long press to edit.'}</Text>
             </TouchableOpacity>
           )}
         </View>
       </View>
 
-      {/* 用戶統計 */}
       <View style={styles.userStats}>
         <View style={styles.statItem}>
           <Text style={styles.statNumber}>42</Text>
@@ -171,9 +184,8 @@ const ProfileScreen = () => {
         </View>
       </View>
 
-      {/* Tab 導覽 */}
       <View style={styles.tabContainer}>
-        {['posts', 'likes', 'chats', 'settings'].map(tab => (
+        {['posts', 'likes', 'chats', 'settings'].map((tab) => (
           <TouchableOpacity key={tab} onPress={() => setSelectedTab(tab)}>
             <Text style={[styles.tabButton, selectedTab === tab && styles.activeTab]}>
               {tab === 'posts' && '🏞️'}
@@ -202,23 +214,32 @@ const ProfileScreen = () => {
             renderItem={({ item }) => <Image source={item.image} style={styles.postImage} />}
           />
         )}
-        {selectedTab === 'chats' && (
+        {selectedTab === 'chats' &&
           messages.map((msg) => (
             <View key={msg.id} style={styles.messageItem}>
               <Image source={msg.avatar} style={styles.messageAvatar} />
               <View>
-                <Text style={styles.messageName}>{msg.name} - <Text style={styles.messageTime}>{msg.time}</Text></Text>
+                <Text style={styles.messageName}>
+                  {msg.name} - <Text style={styles.messageTime}>{msg.time}</Text>
+                </Text>
                 <Text style={styles.messageText}>{msg.message}</Text>
               </View>
             </View>
-          ))
-        )}
+          ))}
         {selectedTab === 'settings' && (
           <View style={styles.settingsContainer}>
-            <TouchableOpacity style={styles.settingItem}><Text style={styles.settingText}>⚙️ Setting</Text></TouchableOpacity>
-            <TouchableOpacity style={styles.settingItem}><Text style={styles.settingText}>ℹ️ Help & Feedback</Text></TouchableOpacity>
-            <TouchableOpacity style={styles.settingItem}><Text style={styles.settingText}>📜 Privacy & Legal</Text></TouchableOpacity>
-            <TouchableOpacity style={styles.settingItem}><Text style={styles.settingText}>🏛 About FitTalk</Text></TouchableOpacity>
+            <TouchableOpacity style={styles.settingItem}>
+              <Text style={styles.settingText}>⚙️ Setting</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.settingItem}>
+              <Text style={styles.settingText}>ℹ️ Help & Feedback</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.settingItem}>
+              <Text style={styles.settingText}>📜 Privacy & Legal</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.settingItem}>
+              <Text style={styles.settingText}>🏛 About FitTalk</Text>
+            </TouchableOpacity>
             <TouchableOpacity style={styles.signOutButton} onPress={handleSignOut}>
               <Text style={styles.signOutText}>Sign Out</Text>
             </TouchableOpacity>

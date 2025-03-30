@@ -45,6 +45,7 @@ const AppNavigator = () => {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       {user ? (
         <Stack.Screen name="Main" component={MainNavigator} />
+        
       ) : (
         <>
           <Stack.Screen name="Login" component={LoginScreen} />
