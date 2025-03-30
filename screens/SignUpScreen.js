@@ -41,8 +41,8 @@ const SignUpScreen = ({ navigation }) => {
   
       console.log("✅ 註冊成功！");
   
-      Alert.alert("Sign up successful", "Please log in with your new account.", [
-        { text: "OK", onPress: () => navigation.replace("SignIn") }, // ✅ 按 OK 才跳轉
+      Alert.alert("Sign up successful", `Welcome to FitTalk, ${name}!`, [
+        { text: "OK", onPress: () => navigation.replace("Main") }, // ✅ 按 OK 才跳轉
       ]);
     } catch (error) {
       Alert.alert("Sign up failed", getErrorMessage(error.code));

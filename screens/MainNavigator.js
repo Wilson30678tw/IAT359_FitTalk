@@ -63,10 +63,10 @@ const CustomTabBar = ({ state, navigation }) => {
       {state.routes.map((route, index) => {
         const positions = {
           Home: { left: "7%" },
-          Fitness: { left: "25%" },
+          Fitness: { left: "28%" },
           Map: { left: "45%" },
           Moments: { left: "65%" },
-          Profile: { left: "85%" },
+          Profile: { left: "80%" },
         };
 
         return (
