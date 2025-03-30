@@ -1,19 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  FlatList, 
-  Image, 
-  TouchableOpacity, 
-  ScrollView,
-  TextInput
-} from 'react-native';
+import { View,Text,StyleSheet,FlatList,Image,TouchableOpacity,ScrollView,TextInput,Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { db } from "../firebaseConfig";
-import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
+import { db } from '../firebaseConfig';
+import { getAuth } from "firebase/auth";
+import { collection, query, orderBy, onSnapshot, doc, getDoc, addDoc, serverTimestamp } from 'firebase/firestore';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import * as ImagePicker from 'expo-image-picker';
 
-// 📸 貼文數據（本地靜態數據）
+// Local posts
 const localMomentsData = [
   { id: '1', user: 'EmilyW', image: require('../assets/post1.png'), avatar: require('../assets/user1.png') },
   { id: '2', user: 'Jessica', image: require('../assets/post2.png'), avatar: require('../assets/user2.png') },
@@ -21,7 +15,6 @@ const localMomentsData = [
   { id: '4', user: 'Johnny', image: require('../assets/post4.png'), avatar: require('../assets/user4.png') },
 ];
 
-// 👥 好友故事（Story）
 const storyUsers = [
   { id: '1', avatar: require('../assets/user1.png') },
   { id: '2', avatar: require('../assets/user2.png') },
@@ -33,7 +26,7 @@ const ShareMomentsScreen = () => {
   const navigation = useNavigation();
   const [firebaseMoments, setFirebaseMoments] = useState([]);
 
-  // 🔥 監聽 Firebase 貼文變化
+  // 🔥 Real-time listener for Firestore posts
   useEffect(() => {
     const q = query(collection(db, "moments"), orderBy("timestamp", "desc"));
     const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -41,7 +34,7 @@ const ShareMomentsScreen = () => {
         id: doc.id,
         user: doc.data().userName || "Unknown",
         image: doc.data().imageUrl,
-        avatar: require('../assets/default-avatar.png'), // 🔹 Firebase 上傳的圖片沒有對應的使用者頭像，預設一個
+        avatar: require('../assets/default-avatar.png'),
       }));
       setFirebaseMoments(moments);
     });
@@ -49,28 +42,126 @@ const ShareMomentsScreen = () => {
     return () => unsubscribe();
   }, []);
 
-  // 🔥 合併本地數據與 Firebase 數據
   const combinedMoments = [...firebaseMoments, ...localMomentsData];
+
+  // 🔽 Unified picker for camera or gallery
+  const handleImagePick = async () => {
+    Alert.alert(
+      'Post a Moment',
+      'Choose a source',
+      [
+        { text: 'Camera', onPress: () => pickImage('camera') },
+        { text: 'Gallery', onPress: () => pickImage('gallery') },
+        { text: 'Cancel', style: 'cancel' }
+      ],
+      { cancelable: true }
+    );
+  };
+
+  const pickImage = async (source) => {
+    try {
+      // Ask for permissions
+      if (source === 'camera') {
+        const { granted } = await ImagePicker.requestCameraPermissionsAsync();
+        if (!granted) {
+          alert('Camera access is required!');
+          return;
+        }
+      } else {
+        const { granted } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (!granted) {
+          alert('Gallery access is required!');
+          return;
+        }
+      }
+
+      const result = await (source === 'camera'
+        ? ImagePicker.launchCameraAsync()
+        : ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            quality: 0.8,
+          }));
+
+      if (!result.canceled) {
+        const image = result.assets[0];
+        const response = await fetch(image.uri);
+        const blob = await response.blob();
+
+        const filename = `${Date.now()}_moment.jpg`;
+        const storage = getStorage();
+        const storageRef = ref(storage, `moments/${filename}`);
+        await uploadBytes(storageRef, blob);
+        const downloadURL = await getDownloadURL(storageRef);
+
+        const auth = getAuth();
+        const currentUser = auth.currentUser;
+
+        if (!currentUser) {
+          alert("You need to be logged in to post!");
+          return;
+        }
+
+        try {
+          const userDocRef = doc(db, "users", currentUser.uid);
+          const userSnapshot = await getDoc(userDocRef);
+
+          if (userSnapshot.exists()) {
+            const userData = userSnapshot.data();
+            const userName = userData.username || "Anonymous";
+
+            await addDoc(collection(db, "moments"), {
+              userName: userName,
+              imageUrl: downloadURL,
+              timestamp: serverTimestamp()
+            });
+
+            alert("Posted successfully!");
+          } else {
+            alert("User data not found!");
+          }
+        } catch (err) {
+          console.error("Error fetching user data:", err);
+          alert("Could not fetch user data.");
+        }
+
+
+
+        alert("Posted successfully!");
+      }
+    } catch (error) {
+      console.error("Error uploading:", error);
+      alert("Something went wrong");
+    }
+  };
 
   return (
     <View style={styles.container}>
-      
-      {/* 🔍 搜索欄 & 訊息按鈕 */}
+      {/* 🔍 Header */}
       <View style={styles.header}>
         <Text style={styles.logo}>FitTalk</Text>
-        <TextInput 
-          style={styles.searchBar} 
-          placeholder="Search..." 
+        <TextInput
+          style={styles.searchBar}
+          placeholder="Search..."
           placeholderTextColor="#aaa"
         />
-        {/* 透明訊息按鈕 */}
-        <TouchableOpacity 
-          style={styles.messageButton} 
+        <TouchableOpacity
+          style={styles.messageButton}
           onPress={() => navigation.navigate('MessageScreen')}
         />
       </View>
 
-      {/* 🔄 好友故事 */}
+      {/* 📸 Upload Button */}
+      <TouchableOpacity
+        onPress={handleImagePick}
+        style={styles.postButton}
+      >
+        <Text style={{ color: '#fff', textAlign: 'center', fontWeight: 'bold' }}>
+          Post a Moment
+        </Text>
+      </TouchableOpacity>
+
+      {/* 👥 Stories
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.storyContainer}>
         <TouchableOpacity style={styles.storyAdd}>
           <Text style={styles.storyPlus}>+</Text>
@@ -78,9 +169,9 @@ const ShareMomentsScreen = () => {
         {storyUsers.map((item) => (
           <Image key={item.id} source={item.avatar} style={styles.storyAvatar} />
         ))}
-      </ScrollView>
+      </ScrollView> */}
 
-      {/* 📸 貼文動態列表（顯示本地 + Firebase 上傳的貼文） */}
+      {/* 📸 Posts List */}
       <FlatList
         data={combinedMoments}
         keyExtractor={(item) => item.id}
@@ -90,7 +181,6 @@ const ShareMomentsScreen = () => {
               <Image source={item.avatar} style={styles.avatar} />
               <Text style={styles.username}>{item.user}</Text>
             </View>
-            {/* 🔹 如果是 Firebase 上傳的圖片，使用 URL 加載 */}
             {typeof item.image === "string" ? (
               <Image source={{ uri: item.image }} style={styles.postImage} />
             ) : (
@@ -207,6 +297,13 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     tintColor: '#fff',
+  },
+  postButton: {
+    backgroundColor: '#E07C24',
+    marginHorizontal: 15,
+    marginBlock: 15,
+    padding: 12,
+    borderRadius: 10,
   },
 });
 
