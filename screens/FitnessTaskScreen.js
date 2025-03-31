@@ -17,6 +17,24 @@ const FitnessTaskScreen = () => {
 
   const stepGoal = 12000;
   const calorieGoal = 600;
+  const bodyParts = [
+    { id: "welcome", name: "welcome", image: require("../assets/fitness-app-assets/welcome.png") },
+    { id: "back", name: "Back", image: require("../assets/fitness-app-assets/back.png") },
+    { id: "cardio", name: "Cardio", image: require("../assets/fitness-app-assets/cardio.png") },
+    { id: "chest", name: "Chest", image: require("../assets/fitness-app-assets/chest.png") },
+    { id: "lower-arms", name: "Lower arms", image: require("../assets/fitness-app-assets/lowerArms.png") },
+    { id: "lower-legs", name: "Lower legs", image: require("../assets/fitness-app-assets/lowerLegs.png") },
+    { id: "neck", name: "Neck", image: require("../assets/fitness-app-assets/neck.png") },
+    { id: "shoulders", name: "Shoulders", image: require("../assets/fitness-app-assets/shoulders.png") },
+    { id: "upper-arms", name: "Upper arms", image: require("../assets/fitness-app-assets/upperArms.png") },
+    { id: "upper-legs", name: "Upper legs", image: require("../assets/fitness-app-assets/upperLegs.png") },
+    { id: "waist", name: "Waist", image: require("../assets/fitness-app-assets/waist.png") },
+  ];
+
+  {/*useEffect(() => {
+    console.log("📦 bodyParts:", bodyParts);
+    console.log("📦 dailyTasks from AsyncStorage:", dailyTasks);
+  }, [dailyTasks]);*/}
 
   useEffect(() => {
     const loadDailyTasks = async () => {
@@ -133,33 +151,33 @@ const FitnessTaskScreen = () => {
        
        {/* ✅ 顯示任務清單（含圖示） */}
        <View style={styles.taskContainer}>
-        <Text style={styles.taskStatus}>Today's Tasks</Text>
-        {dailyTasks.length === 0 ? (
-          <Text style={{ color: 'white' }}>Loading tasks...</Text>
-        ) : (
-          dailyTasks.map((task) => (
-            <View
-              key={task.id}
-              style={[
-                styles.taskItem,
-                task.completed && { backgroundColor: '#94683C' },
-              ]}
-            >
-              <View style={styles.taskRow}>
-                <Image
-                  source={
-                    task.completed
-                      ? require('../assets/checked.png')
-                      : require('../assets/uncheck.png')
-                  }
-                  style={styles.icon}
-                />
-                <Text style={styles.taskTitle}>{task.title}</Text>
-              </View>
-            </View>
-          ))
-        )}
+      <Text style={styles.taskStatus}>Today's Tasks</Text>
+      <FlatList
+        data={dailyTasks}
+       keyExtractor={(item) => item.id}
+       scrollEnabled={false} // ⚠️ 不要跟外部 FlatList 衝突
+        renderItem={({ item }) => (
+        <View
+        style={[
+          styles.taskItem,
+          item.completed && { backgroundColor: '#94683C' },
+        ]}
+      >
+        <View style={styles.taskRow}>
+          <Image
+            source={
+              item.completed
+                ? require('../assets/checked.png')
+                : require('../assets/uncheck.png')
+            }
+            style={styles.icon}
+          />
+          <Text style={styles.taskTitle}>{item.title}</Text>
+        </View>
       </View>
+    )}
+  />
+</View>
 
       <Text style={styles.taskListHeader}>Exercises</Text>
     </>

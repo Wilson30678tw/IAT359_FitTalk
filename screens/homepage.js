@@ -18,6 +18,7 @@ const HomeScreen = () => {
   const [location, setLocation] = useState(null);
   const navigation = useNavigation();
 
+
   // Function to get current time
   const updateTime = () => {
     const now = new Date();
@@ -64,15 +65,60 @@ const HomeScreen = () => {
     fetchWeather(location.coords.latitude, location.coords.longitude);
   };
 
-  const getFitnessSuggestion = () => {
-    if (!weather || !weather.current) return "Loading...";
+ 
+  const getFitnessPlan = () => {
+    if (!weather || !weather.current) {
+      return {
+        title: "🏋️ Home Fitness",
+        time: "30 min",
+        calories: "180 Kcal",
+        suggestion: "Customize your own workout today!",
+        image: require("../assets/Fitness.png"),
+      };
+    }
+  
     const condition = weather.current.condition.text.toLowerCase();
-    if (condition.includes("rain")) return "🌧 Try indoor yoga or stretching.";
-    if (condition.includes("clear") || condition.includes("sunny"))
-      return "☀️ Perfect day for outdoor running or cycling.";
-    if (condition.includes("cloud")) return "⛅ Great for a walk or home workout.";
-    return "🏋️ Customize your own workout today!";
+    
+  
+    if (condition.includes("rain")) {
+      return {
+        title: "🧘 Indoor Yoga",
+        time: "20 min",
+        calories: "100 Kcal",
+        suggestion: "🌧 Try indoor yoga or stretching.",
+        image: require("../assets/IndoorYoga.png"),
+      };
+    }
+  
+    if (condition.includes("clear") || condition.includes("sunny")) {
+      return {
+        title: "🚴 Outdoor Cycling",
+        time: "40 min",
+        calories: "250 Kcal",
+        suggestion: "☀️ Perfect day for outdoor running or cycling.",
+        image: require("../assets/OutdoorBike.png"),
+      };
+    }
+  
+    if (condition.includes("cloud")) {
+      return {
+        title: "🚶 Brisk Walking",
+        time: "30 min",
+        calories: "150 Kcal",
+        suggestion: "⛅ Great for a walk or home workout.",
+        image: require("../assets/BriskWalking.png"),
+      };
+    }
+  
+    return {
+      title: "🏋️ Home Fitness",
+      time: "30 min",
+      calories: "180 Kcal",
+      suggestion: "🏋️ Customize your own workout today!",
+      image: require("../assets/Fitness.png"),
+    };
   };
+  const fitnessPlan = getFitnessPlan();
 
   // Run these functions when the component mounts
   useEffect(() => {
@@ -130,16 +176,14 @@ const HomeScreen = () => {
           <Text style={styles.sectionTitle}>Best Fit For You</Text>
           <View style={styles.fitnessCard}>
             <View style={styles.fitnessHeader}>
-              <Text style={styles.fitnessTitle}>Home Fitness</Text>
-              <Text style={styles.fitnessMeta}>🕒 30 min   🔥 180 Kcal</Text>
+            <Text style={styles.fitnessTitle}>{fitnessPlan.title}</Text>
+            <Text style={styles.fitnessMeta}>🕒 {fitnessPlan.time}   🔥 {fitnessPlan.calories}</Text>
             </View>
             <Image
-              source={require("../assets/Fitness.png")}
+              source={fitnessPlan.image}
               style={styles.fitnessImage}
             />
-            <Text style={styles.fitnessDescription}>
-              {getFitnessSuggestion()}
-            </Text>
+            <Text style={styles.fitnessDescription}>{fitnessPlan.suggestion}</Text>
           </View>
 
           {/* Padding to avoid bottom tab overlap */}
@@ -284,7 +328,7 @@ const styles = StyleSheet.create({
   },
   fitnessImage: {
     width: "100%",
-    height: 160,
+    height: 300,
     borderRadius: 12,
     resizeMode: "cover",
     marginTop: 10,

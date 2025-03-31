@@ -46,8 +46,8 @@ const TaskListScreen = () => {
 
       // 隨機選 4 個任務
       const shuffled = allTasks.sort(() => 0.5 - Math.random());
-      const selected = shuffled.slice(0, 4).map((title, index) => ({
-        id: `task-${Date.now()}-${index}`, // 加前綴和時間戳，保證唯一
+      const selected = shuffled.slice(0, 4).map((title) => ({
+        id: title, // Use title as stable unique ID
         title,
         completed: false,
       }));
