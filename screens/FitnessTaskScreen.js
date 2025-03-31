@@ -6,6 +6,8 @@ import { Pedometer } from 'expo-sensors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { bodyParts } from '../constants';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
+import Svg, { Circle } from 'react-native-svg';
+import { Dimensions } from 'react-native';
 
 const FitnessTaskScreen = () => {
   const navigation = useNavigation();
@@ -114,34 +116,55 @@ const FitnessTaskScreen = () => {
       <View style={styles.logoContainer}>
         <Image source={require("../assets/FitTalk_Logo.png")} style={styles.logo} />
       </View>
+       
 
-      <View style={styles.progressContainer}>
-        <ProgressChart
-          data={progressData}
-          width={200}
-          height={120}
-          strokeWidth={8}
-          radius={30}
-          chartConfig={{
-            backgroundColor: "transparent",
-            backgroundGradientFrom: "transparent",
-            backgroundGradientTo: "transparent",
-            color: (opacity = 1) => `rgba(255, 165, 0, ${opacity})`,
-            labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-          }}
-          hideLegend={true}
-          style={{ backgroundColor: 'transparent' }}
-        />
-        <View style={styles.progressTextContainer}>
-          <Text style={styles.progressText}>Steps{"\n"}<Text style={styles.percentage}>{(stepProgress * 100).toFixed(0)}%</Text></Text>
-          <Text style={styles.progressText}>Calories{"\n"}<Text style={styles.percentage}>{(calorieProgress * 100).toFixed(0)}%</Text></Text>
-        </View>
-      </View>
+      {/* 🔵⭕ 圓圖 + 數據 */}
+<View style={styles.svgRow}>
+  <Svg width={120} height={120} viewBox="0 0 120 120">
+    <Circle cx="60" cy="60" r="50" stroke="#555" strokeWidth="6" fill="none" />
+    <Circle cx="60" cy="60" r="40" stroke="#555" strokeWidth="6" fill="none" />
+    <Circle
+      cx="60"
+      cy="60"
+      r="50"
+      stroke="orange"
+      strokeWidth="6"
+      fill="none"
+      strokeDasharray={`${2 * Math.PI * 50}`}
+      strokeDashoffset={2 * Math.PI * 50 - (stepProgress * 2 * Math.PI * 50)}
+      strokeLinecap="round"
+      transform="rotate(-90 60 60)"
+    />
+    <Circle
+      cx="60"
+      cy="60"
+      r="40"
+      stroke="#AC3C32"
+      strokeWidth="6"
+      fill="none"
+      strokeDasharray={`${2 * Math.PI * 40}`}
+      strokeDashoffset={2 * Math.PI * 40 - (calorieProgress * 2 * Math.PI * 40)}
+      strokeLinecap="round"
+      transform="rotate(-90 60 60)"
+    />
+  </Svg>
 
-      <View style={styles.statsContainer}>
-        <Text style={styles.statsText}>{stepCount}{"\n"}Steps</Text>
-        <Text style={styles.statsText}>{(stepCount * 0.0008).toFixed(2)} km{"\n"}Distance</Text>
-      </View>
+  {/* 右邊數據區 */}
+  <View style={styles.svgTextBox}>
+    <Text style={styles.progressText}>Steps</Text>
+    <Text style={styles.percentage}>{stepCount} / {stepGoal}</Text>
+    <Text style={styles.progressText}>Calories</Text>
+    <Text style={[styles.percentage, { color: 'white' }]}>
+      {(calorieProgress * calorieGoal).toFixed(0)} / {calorieGoal}
+    </Text>
+  </View>
+</View>
+
+{/* 🔽 步數與公里資訊，顯示在下方 */}
+<View style={styles.statsContainer}>
+  <Text style={styles.statsText}>{stepCount}{"\n"}Steps</Text>
+  <Text style={styles.statsText}>{(stepCount * 0.0008).toFixed(2)} km{"\n"}Distance</Text>
+</View>
 
 
       <TouchableOpacity onPress={() => navigation.navigate('TaskListScreen')}>
@@ -220,14 +243,6 @@ const styles = StyleSheet.create({
     width: 100,
     height: 50,
     resizeMode: 'contain',
-  },
-  progressContainer: {
-    flexDirection: 'row',
-    alignItems: 'left',
-    alignSelf: 'left',
-    marginBottom: 20,
-    backgroundColor: 'transparent',
-    
   },
   progressTextContainer: {
     marginLeft: 10,
@@ -323,6 +338,23 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 10,
+  },
+  svgContainer: {
+    flexDirection: 'row',
+    alignItems: 'left',
+    alignSelf: 'center',
+    marginBottom: 20,
+    marginTop: 10,
+  },
+  svgRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 10,
+  },
+  
+  svgTextBox: {
+    marginLeft: 20,
   },
 });
 

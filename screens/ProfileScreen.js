@@ -27,6 +27,13 @@ const likedPosts = [
   { id: '2', image: require('../assets/post2.png') },
 ];
 
+const tabIcons = {
+  posts: require('../assets/Function.png'),
+  likes: require('../assets/Plike.png'),
+  chats: require('../assets/Message.png'),
+  settings: require('../assets/Setting.png'),
+};
+
 const messages = [
   { id: '1', name: 'Johnny', time: 'Just now', message: 'Sure! See you later!', avatar: require('../assets/user1.png') },
   { id: '2', name: 'Will', time: '1h ago', message: "That's cool!", avatar: require('../assets/user2.png') },
@@ -185,17 +192,18 @@ const ProfileScreen = () => {
       </View>
 
       <View style={styles.tabContainer}>
-        {['posts', 'likes', 'chats', 'settings'].map((tab) => (
-          <TouchableOpacity key={tab} onPress={() => setSelectedTab(tab)}>
-            <Text style={[styles.tabButton, selectedTab === tab && styles.activeTab]}>
-              {tab === 'posts' && '🏞️'}
-              {tab === 'likes' && '❤️'}
-              {tab === 'chats' && '💬'}
-              {tab === 'settings' && '⚙️'}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
+  {['posts', 'likes', 'chats', 'settings'].map((tab) => (
+    <TouchableOpacity key={tab} onPress={() => setSelectedTab(tab)}>
+      <Image
+        source={tabIcons[tab]}
+        style={[
+          styles.tabIcon,
+          selectedTab === tab && styles.activeTabIcon,
+        ]}
+      />
+    </TouchableOpacity>
+  ))}
+</View>
 
       <View style={styles.contentContainer}>
         {selectedTab === 'posts' && (
@@ -399,6 +407,26 @@ const styles = StyleSheet.create({
     color: '#E87E27',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  tabItem: {
+    alignItems: 'center',
+    paddingBottom: 5,
+    paddingHorizontal: 15,
+  },
+  
+  tabIcon: {
+    width: 24,
+    height: 24,
+    tintColor: '#777', // 預設灰色
+  },
+  
+  activeTabIcon: {
+    tintColor: '#E87E27',
+  },
+  
+  activeTabBorder: {
+    borderBottomWidth: 3,
+    borderBottomColor: '#E87E27',
   },
 });
 
