@@ -62,24 +62,28 @@ const MapScreen = () => {
 
       {/* Map Container*/}
       <View style={styles.mapContainer}>
-        <MapView
-            style={styles.map}
-            initialRegion={{
-                latitude: 49.2827, 
-                longitude: -123.1207, 
-                latitudeDelta: 0.01, 
-                longitudeDelta: 0.01,
-            }}
-            showsUserLocation={true}
-        >
-            {route.length > 0 && (
-                <>
-                    <Polyline coordinates={route} strokeWidth={4} strokeColor="blue" />
-                    <Marker coordinate={route[0]} title="Start" pinColor="green" />
-                    <Marker coordinate={route[route.length - 1]} title="Current" pinColor="red" />
-                </>
-            )}
-        </MapView>
+      <MapView
+  style={styles.map}
+  region={
+    location
+      ? {
+          latitude: location.latitude,
+          longitude: location.longitude,
+          latitudeDelta: 0.01,
+          longitudeDelta: 0.01,
+        }
+      : undefined
+  }
+  showsUserLocation={true}
+>
+  {route.length > 0 && (
+    <>
+      <Polyline coordinates={route} strokeWidth={4} strokeColor="blue" />
+      <Marker coordinate={route[0]} title="Start" pinColor="green" />
+      <Marker coordinate={route[route.length - 1]} title="Current" pinColor="red" />
+    </>
+  )}
+</MapView>
       </View>
 
       {/* Buttons */}

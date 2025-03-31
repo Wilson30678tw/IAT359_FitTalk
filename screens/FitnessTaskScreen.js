@@ -18,7 +18,6 @@ const FitnessTaskScreen = () => {
   const stepGoal = 12000;
   const calorieGoal = 600;
   const bodyParts = [
-    { id: "welcome", name: "welcome", image: require("../assets/fitness-app-assets/welcome.png") },
     { id: "back", name: "Back", image: require("../assets/fitness-app-assets/back.png") },
     { id: "cardio", name: "Cardio", image: require("../assets/fitness-app-assets/cardio.png") },
     { id: "chest", name: "Chest", image: require("../assets/fitness-app-assets/chest.png") },
@@ -131,6 +130,7 @@ const FitnessTaskScreen = () => {
             labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
           }}
           hideLegend={true}
+          style={{ backgroundColor: 'transparent' }}
         />
         <View style={styles.progressTextContainer}>
           <Text style={styles.progressText}>Steps{"\n"}<Text style={styles.percentage}>{(stepProgress * 100).toFixed(0)}%</Text></Text>
@@ -143,7 +143,6 @@ const FitnessTaskScreen = () => {
         <Text style={styles.statsText}>{(stepCount * 0.0008).toFixed(2)} km{"\n"}Distance</Text>
       </View>
 
-      <Button title="Reset Steps" onPress={resetStepCount} color="orange" />
 
       <TouchableOpacity onPress={() => navigation.navigate('TaskListScreen')}>
       <Text style={[styles.taskListHeader, { textDecorationLine: 'underline' }]}>Go to Task List →</Text>
@@ -224,9 +223,11 @@ const styles = StyleSheet.create({
   },
   progressContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
-    alignSelf: 'center',
+    alignItems: 'left',
+    alignSelf: 'left',
     marginBottom: 20,
+    backgroundColor: 'transparent',
+    
   },
   progressTextContainer: {
     marginLeft: 10,
@@ -237,18 +238,20 @@ const styles = StyleSheet.create({
     textAlign: 'left',
   },
   percentage: {
-    fontSize: 20,
+    fontSize: 16,
     fontWeight: 'bold',
     color: 'orange',
+    textAlign: 'center',
   },
   statsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    width: '80%',
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    width: '100%',
+    backgroundColor: 'transparent',
     padding: 10,
     borderRadius: 10,
-    marginBottom: 20,
+    marginBottom: 10,
+    marginLeft: 10,
   },
   statsText: {
     color: '#fff',
@@ -260,7 +263,7 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
     alignSelf: 'flex-start',
-    marginLeft: '10%',
+    marginLeft: '8%',
     marginBottom: 10,
     marginTop: 20,
   },
