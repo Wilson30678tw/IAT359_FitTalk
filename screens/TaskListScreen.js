@@ -7,11 +7,12 @@ import {
   SafeAreaView,
   TouchableOpacity,
   Image,
+  TextInput,
+  Alert,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// 任務池
 const allTasks = [
   '10 min warm-up jog',
   'Ab workout (15 reps x 3)',
@@ -28,9 +29,9 @@ const allTasks = [
 
 const TaskListScreen = () => {
   const [tasks, setTasks] = useState([]);
+  const [newTask, setNewTask] = useState('');
   const navigation = useNavigation();
 
-  // 每日任務初始化
   useEffect(() => {
     const loadDailyTasks = async () => {
       const today = new Date().toDateString();
@@ -44,12 +45,12 @@ const TaskListScreen = () => {
         }
       }
 
-      // 隨機選 4 個任務
       const shuffled = allTasks.sort(() => 0.5 - Math.random());
       const selected = shuffled.slice(0, 4).map((title) => ({
-        id: title, // Use title as stable unique ID
+        id: title,
         title,
         completed: false,
+        custom: false, // 系統任務
       }));
 
       await AsyncStorage.setItem(
@@ -62,26 +63,57 @@ const TaskListScreen = () => {
     loadDailyTasks();
   }, []);
 
-  // 切換完成狀態
+  const saveTasks = async (updatedTasks) => {
+    const today = new Date().toDateString();
+    setTasks(updatedTasks);
+    await AsyncStorage.setItem(
+      'daily-tasks',
+      JSON.stringify({ date: today, tasks: updatedTasks })
+    );
+  };
+
   const toggleComplete = async (id) => {
     const updated = tasks.map((task) =>
       task.id === id ? { ...task, completed: !task.completed } : task
     );
-    setTasks(updated);
-
-    const today = new Date().toDateString();
-    await AsyncStorage.setItem(
-      'daily-tasks',
-      JSON.stringify({ date: today, tasks: updated })
-    );
-  };
-  const clearTodayTasks = async () => {
-    await AsyncStorage.removeItem('daily-tasks');
-    setTasks([]); // 清空當前畫面顯示
-    Alert.alert('已清除今日任務', '返回畫面時會重新生成任務');
+    await saveTasks(updated);
   };
 
-  // 單項渲染
+  const handleAddTask = async () => {
+    const trimmed = newTask.trim();
+    if (!trimmed) return;
+
+    if (tasks.find((task) => task.id === trimmed)) {
+      Alert.alert('Duplicate Task', 'This task already exists.');
+      return;
+    }
+
+    const newTaskObj = {
+      id: trimmed,
+      title: trimmed,
+      completed: false,
+      custom: true,
+    };
+
+    const updatedTasks = [...tasks, newTaskObj];
+    setNewTask('');
+    await saveTasks(updatedTasks);
+  };
+
+  const handleDeleteTask = (id) => {
+    Alert.alert('Delete Task', 'Are you sure you want to delete this task?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: async () => {
+          const updatedTasks = tasks.filter((task) => task.id !== id);
+          await saveTasks(updatedTasks);
+        },
+      },
+    ]);
+  };
+
   const renderItem = ({ item }) => (
     <View style={[styles.taskBox, item.completed && styles.taskCompleted]}>
       <View style={styles.taskRow}>
@@ -105,37 +137,45 @@ const TaskListScreen = () => {
             {item.completed ? 'Undo' : 'Complete'}
           </Text>
         </TouchableOpacity>
+
+        {item.custom && (
+          <TouchableOpacity
+            style={styles.deleteButton}
+            onPress={() => handleDeleteTask(item.id)}
+          >
+            <Text style={styles.buttonText}>Delete</Text>
+          </TouchableOpacity>
+        )}
       </View>
     </View>
   );
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* 返回按鈕 */}
       <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
         <Text style={styles.backButtonText}>← Back</Text>
       </TouchableOpacity>
 
-      {/* <TouchableOpacity
-  style={{
-    alignSelf: 'center',
-    backgroundColor: '#D9534F',
-    padding: 10,
-    borderRadius: 10,
-    marginBottom: 10,
-    }}
-  onPress={clearTodayTasks}
-    >
-  <Text style={{ color: 'white', fontWeight: 'bold' }}>🧹 清除今日任務</Text>
-    </TouchableOpacity>*/}
-
-
       <Text style={styles.header}>Today's Tasks</Text>
+
+      <View style={styles.inputRow}>
+        <TextInput
+          style={styles.input}
+          placeholder="Add your custom task"
+          placeholderTextColor="#888"
+          value={newTask}
+          onChangeText={setNewTask}
+        />
+        <TouchableOpacity onPress={handleAddTask} style={styles.addButton}>
+          <Text style={{ color: 'white', fontWeight: 'bold' }}>Add</Text>
+        </TouchableOpacity>
+      </View>
 
       <FlatList
         data={tasks}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
+        ListEmptyComponent={<Text style={styles.emptyText}>No tasks found.</Text>}
       />
     </SafeAreaView>
   );
@@ -162,12 +202,29 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     borderRadius: 8,
     marginBottom: 10,
-    
   },
   backButtonText: {
     color: 'white',
     fontSize: 14,
-    
+  },
+  inputRow: {
+    flexDirection: 'row',
+    marginBottom: 20,
+  },
+  input: {
+    flex: 1,
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    height: 40,
+    color: 'black',
+  },
+  addButton: {
+    backgroundColor: 'orange',
+    paddingHorizontal: 16,
+    justifyContent: 'center',
+    borderRadius: 8,
+    marginLeft: 8,
   },
   taskBox: {
     padding: 15,
@@ -191,6 +248,7 @@ const styles = StyleSheet.create({
   taskText: {
     color: 'white',
     fontSize: 16,
+    flex: 1,
   },
   buttonGroup: {
     flexDirection: 'row',
@@ -209,18 +267,21 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     borderRadius: 5,
   },
-  completeLabel: {
-    backgroundColor: '#4CAF50',
-    color: 'white',
+  deleteButton: {
+    backgroundColor: '#D9534F',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 5,
-    marginRight: 10,
-    fontWeight: 'bold',
+    marginLeft: 10,
   },
   buttonText: {
     color: 'white',
     fontWeight: 'bold',
+  },
+  emptyText: {
+    color: '#ccc',
+    textAlign: 'center',
+    marginTop: 40,
   },
 });
 
