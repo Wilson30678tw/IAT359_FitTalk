@@ -8,6 +8,7 @@ import MapScreen from '../screens/MapScreen';
 import MomentsScreen from '../screens/ShareMomentsScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import ExerciseNavigator from '../screens/ExerciseNavigator';
+import TaskListScreen from '../screens/TaskListScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -23,6 +24,7 @@ const BottomTabs = ({ navigation }) => {
         <Tab.Screen name="Moments" component={MomentsScreen} />
         <Tab.Screen name="Profile" component={ProfileScreen} />
       </Tab.Navigator>
+
 
       {/* 🔥 全局 Camera 按鈕 */}
       <TouchableOpacity 
@@ -41,6 +43,7 @@ const MainNavigator = () => {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="MainTabs" component={BottomTabs} />
       <Stack.Screen name="CameraScreen" component={CameraScreen} />
+      <Stack.Screen name="TaskListScreen" component={TaskListScreen} />
     </Stack.Navigator>
   );
 };

@@ -121,7 +121,7 @@ const HomeScreen = () => {
               source={require("../assets/Workout.png")}
               style={styles.newsImage}
             />
-            <TouchableOpacity style={styles.exploreButton}>
+            <TouchableOpacity style={styles.exploreButton} onPress={() => navigation.navigate('TaskListScreen')}>
               <Text style={styles.exploreButtonText}>Explore More</Text>
             </TouchableOpacity>
           </View>
@@ -134,7 +134,7 @@ const HomeScreen = () => {
               <Text style={styles.fitnessMeta}>🕒 30 min   🔥 180 Kcal</Text>
             </View>
             <Image
-              source={require("../assets/homefitness.png")}
+              source={require("../assets/Fitness.png")}
               style={styles.fitnessImage}
             />
             <Text style={styles.fitnessDescription}>
@@ -193,6 +193,10 @@ const styles = StyleSheet.create({
   },
   weatherContainer: {
     alignItems: "flex-end",
+    padding: 10,
+    backgroundColor: "transparent",
+    borderRadius: 10,
+    maxWidth: 200, // 限制整體寬度避免貼齊邊界
   },
   weatherLocationRow: {
     flexDirection: "row",
@@ -243,9 +247,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#E87E27",
     alignSelf: "flex-start",
     paddingVertical: 8,
-    paddingHorizontal: 16,
+    paddingHorizontal: 22,
     borderRadius: 20,
-    marginTop: 10,
+    marginTop: -20,
+    marginLeft:230,
   },
   exploreButtonText: {
     color: "#fff",
