@@ -71,7 +71,17 @@ const FitnessTaskScreen = () => {
 
     async function loadStepData() {
       const storedSteps = await AsyncStorage.getItem('dailyStepCount');
-      if (storedSteps) setStepCount(JSON.parse(storedSteps));
+      const storedDate = await AsyncStorage.getItem('stepDate');
+      const today = new Date().toDateString();
+    
+      if (storedDate !== today) {
+        // 如果不是今天的紀錄，就重設步數並更新日期
+        await AsyncStorage.setItem('stepDate', today);
+        await AsyncStorage.setItem('dailyStepCount', JSON.stringify(0));
+        setStepCount(0);
+      } else if (storedSteps) {
+        setStepCount(JSON.parse(storedSteps));
+      }
     }
 
     checkPedometerAvailability();
@@ -90,6 +100,7 @@ const FitnessTaskScreen = () => {
           setLastStepCount(result.steps);
           setLastUpdateTime(now);
           await AsyncStorage.setItem('dailyStepCount', JSON.stringify(newStepCount));
+          await AsyncStorage.setItem('stepDate', new Date().toDateString());
         }
       });
 
