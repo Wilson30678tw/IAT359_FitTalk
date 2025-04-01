@@ -28,6 +28,7 @@ export const AuthProvider = ({ children }) => {
 
     // 監聽 Firebase 用戶狀態變化
     const unsubscribe = onAuthStateChanged(auth, async (authUser) => {
+      if (!user) return;
       if (authUser) {
         console.log("✅ Firebase 檢測到用戶登入:", authUser.email);
 

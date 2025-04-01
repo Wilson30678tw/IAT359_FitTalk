@@ -8,6 +8,8 @@ import { bodyParts } from '../constants';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import Svg, { Circle } from 'react-native-svg';
 import { Dimensions } from 'react-native';
+import { auth, db } from '../firebaseConfig';
+import { doc, getDoc } from 'firebase/firestore';
 
 const FitnessTaskScreen = () => {
   const navigation = useNavigation();
@@ -16,6 +18,7 @@ const FitnessTaskScreen = () => {
   const [lastStepCount, setLastStepCount] = useState(0);
   const [lastUpdateTime, setLastUpdateTime] = useState(Date.now());
   const [dailyTasks, setDailyTasks] = useState([]);
+  const [userWeight, setUserWeight] = useState(null);
 
   const stepGoal = 12000;
   const calorieGoal = 600;
@@ -36,6 +39,27 @@ const FitnessTaskScreen = () => {
     console.log("📦 bodyParts:", bodyParts);
     console.log("📦 dailyTasks from AsyncStorage:", dailyTasks);
   }, [dailyTasks]);*/}
+
+  useEffect(() => {
+    const fetchWeightFromFirestore = async () => {
+      const user = auth.currentUser;
+      if (!user) return;
+  
+      try {
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        if (userDoc.exists()) {
+          const data = userDoc.data();
+          if (data.weight) {
+            setUserWeight(parseFloat(data.weight));
+          }
+        }
+      } catch (err) {
+        console.error("🔥 Failed to fetch user weight:", err);
+      }
+    };
+  
+    fetchWeightFromFirestore();
+  }, []);
 
   useEffect(() => {
     const loadDailyTasks = async () => {
@@ -109,7 +133,9 @@ const FitnessTaskScreen = () => {
   }, [isPedometerAvailable, stepCount]);
 
   const stepProgress = Math.min(stepCount / stepGoal, 1);
-  const calorieProgress = Math.min((stepCount / stepGoal) * calorieGoal, calorieGoal) / calorieGoal;
+  const calorieBurn = userWeight ? stepCount * 0.04 * userWeight : 0; // 每步約 0.04 kcal/kg
+  const calorieTarget = userWeight ? userWeight * 10 : calorieGoal;
+  const calorieProgress = Math.min(calorieBurn / calorieTarget, 1);
 
   const resetStepCount = async () => {
     setStepCount(0);
@@ -166,8 +192,8 @@ const FitnessTaskScreen = () => {
     <Text style={styles.percentage}>{stepCount} / {stepGoal}</Text>
     <Text style={styles.progressText}>Calories</Text>
     <Text style={[styles.percentage, { color: 'white' }]}>
-      {(calorieProgress * calorieGoal).toFixed(0)} / {calorieGoal}
-    </Text>
+      {calorieBurn.toFixed(0)} / {calorieTarget}
+      </Text>
   </View>
 </View>
 

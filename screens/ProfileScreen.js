@@ -236,8 +236,11 @@ const ProfileScreen = () => {
           ))}
         {selectedTab === 'settings' && (
           <View style={styles.settingsContainer}>
-            <TouchableOpacity style={styles.settingItem}>
-              <Text style={styles.settingText}>⚙️ Setting</Text>
+           <TouchableOpacity
+            style={styles.settingItem}
+        onPress={() => navigation.navigate('SettingScreen')}
+        >
+           <Text style={styles.settingText}>⚙️ Setting</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.settingItem}>
               <Text style={styles.settingText}>ℹ️ Help & Feedback</Text>
