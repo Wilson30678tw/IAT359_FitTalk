@@ -124,6 +124,7 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
     tintColor: 'white',
+    resizeMode: 'contain',
   },
 });
 

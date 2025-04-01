@@ -2,9 +2,8 @@ import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
-  Button,
-  Image,
   Alert,
+  Image,
   StyleSheet,
   ActivityIndicator,
   TouchableOpacity,
@@ -13,7 +12,13 @@ import * as ImagePicker from "expo-image-picker";
 import * as Crypto from "expo-crypto";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, storage } from "../firebaseConfig";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import {
+  collection,
+  addDoc,
+  serverTimestamp,
+  doc,
+  getDoc,
+} from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { Ionicons } from "@expo/vector-icons";
 
@@ -23,15 +28,28 @@ const CameraScreen = ({ navigation }) => {
 
   useEffect(() => {
     (async () => {
-      const { status } = await ImagePicker.requestCameraPermissionsAsync();
-      if (status !== "granted") {
-        Alert.alert("Permission denied", "Camera access is required.");
+      const cameraStatus = await ImagePicker.requestCameraPermissionsAsync();
+      const mediaStatus = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (cameraStatus.status !== "granted" || mediaStatus.status !== "granted") {
+        Alert.alert("Permission denied", "Camera and media access are required.");
       }
     })();
   }, []);
 
   const takePicture = async () => {
-    let result = await ImagePicker.launchCameraAsync({
+    const result = await ImagePicker.launchCameraAsync({
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setImage(result.assets[0].uri);
+    }
+  };
+
+  const pickImageFromGallery = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
       allowsEditing: true,
       aspect: [4, 3],
       quality: 1,
@@ -48,7 +66,7 @@ const CameraScreen = ({ navigation }) => {
 
   const uploadImageToFirebase = async () => {
     if (!image) {
-      Alert.alert("❌ Error", "Please take a photo first!");
+      Alert.alert("❌ Error", "Please take or choose a photo first!");
       return;
     }
 
@@ -56,6 +74,7 @@ const CameraScreen = ({ navigation }) => {
     try {
       const auth = getAuth();
       const user = auth.currentUser;
+
       if (!user) {
         Alert.alert("❌ Please log in first");
         return;
@@ -71,9 +90,24 @@ const CameraScreen = ({ navigation }) => {
       await uploadBytes(storageRef, blob);
       const downloadURL = await getDownloadURL(storageRef);
 
+      // 🔍 Get user profile from Firestore
+      const userDocRef = doc(db, "users", user.uid);
+      const userSnapshot = await getDoc(userDocRef);
+
+      let userName = user.email;
+      let avatarUrl = null;
+
+      if (userSnapshot.exists()) {
+        const userData = userSnapshot.data();
+        userName = userData.username || user.email;
+        avatarUrl = userData.avatar || null;
+      }
+
+      // 🔥 Upload post to Firestore
       await addDoc(collection(db, "moments"), {
         userId: user.uid,
-        userName: user.email,
+        userName: userName,
+        avatarUrl: avatarUrl,
         imageUrl: downloadURL,
         timestamp: serverTimestamp(),
       });
@@ -85,21 +119,25 @@ const CameraScreen = ({ navigation }) => {
       console.error("Upload error:", error);
       Alert.alert("❌ Failed", "Please try again.");
     }
+
     setUploading(false);
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>📷 Take a Photo</Text>
+      <Text style={styles.header}>📷 Take or Choose a Photo</Text>
 
       <TouchableOpacity style={styles.cameraButton} onPress={takePicture}>
         <Ionicons name="camera-outline" size={28} color="#fff" />
         <Text style={styles.buttonText}>Open Camera</Text>
       </TouchableOpacity>
 
-      {image && (
-        <Image source={{ uri: image }} style={styles.previewImage} />
-      )}
+      <TouchableOpacity style={styles.galleryButton} onPress={pickImageFromGallery}>
+        <Ionicons name="image-outline" size={28} color="#fff" />
+        <Text style={styles.buttonText}>Open Gallery</Text>
+      </TouchableOpacity>
+
+      {image && <Image source={{ uri: image }} style={styles.previewImage} />}
 
       {image && (
         <TouchableOpacity
@@ -143,6 +181,14 @@ const styles = StyleSheet.create({
   cameraButton: {
     flexDirection: "row",
     backgroundColor: "#E87E27",
+    padding: 12,
+    borderRadius: 25,
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  galleryButton: {
+    flexDirection: "row",
+    backgroundColor: "#2196F3",
     padding: 12,
     borderRadius: 25,
     alignItems: "center",
