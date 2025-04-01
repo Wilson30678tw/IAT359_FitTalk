@@ -234,28 +234,44 @@ const ProfileScreen = () => {
               </View>
             </View>
           ))}
-        {selectedTab === 'settings' && (
-          <View style={styles.settingsContainer}>
-           <TouchableOpacity
-            style={styles.settingItem}
-        onPress={() => navigation.navigate('SettingScreen')}
-        >
-           <Text style={styles.settingText}>⚙️ Setting</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.settingItem}>
-              <Text style={styles.settingText}>ℹ️ Help & Feedback</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.settingItem}>
-              <Text style={styles.settingText}>📜 Privacy & Legal</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.settingItem}>
-              <Text style={styles.settingText}>🏛 About FitTalk</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.signOutButton} onPress={handleSignOut}>
-              <Text style={styles.signOutText}>Sign Out</Text>
-            </TouchableOpacity>
-          </View>
-        )}
+       {selectedTab === 'settings' && (
+  <View style={styles.settingsContainer}>
+    <TouchableOpacity
+      style={styles.settingItem}
+      onPress={() => navigation.navigate('SettingScreen')}
+    >
+      <View style={styles.settingRow}>
+        <Image source={require('../assets/Innersetting.png')} style={styles.settingIcon} />
+        <Text style={styles.settingText}>Profile Settings</Text>
+      </View>
+    </TouchableOpacity>
+
+    <TouchableOpacity style={styles.settingItem}>
+      <View style={styles.settingRow}>
+        <Image source={require('../assets/InnerInfo.png')} style={styles.settingIcon} />
+        <Text style={styles.settingText}>Help & Feedback</Text>
+      </View>
+    </TouchableOpacity>
+
+    <TouchableOpacity style={styles.settingItem}>
+      <View style={styles.settingRow}>
+        <Image source={require('../assets/Privacy.png')} style={styles.settingIcon} />
+        <Text style={styles.settingText}>Privacy & Legal</Text>
+      </View>
+    </TouchableOpacity>
+
+    <TouchableOpacity style={styles.settingItem}>
+      <View style={styles.settingRow}>
+        <Image source={require('../assets/About.png')} style={styles.settingIcon} />
+        <Text style={styles.settingText}>About FitTalk</Text>
+      </View>
+    </TouchableOpacity>
+
+    <TouchableOpacity style={styles.signOutButton} onPress={handleSignOut}>
+      <Text style={styles.signOutText}>Sign Out</Text>
+    </TouchableOpacity>
+  </View>
+)}
       </View>
     </View>
   );
@@ -431,6 +447,16 @@ const styles = StyleSheet.create({
   activeTabBorder: {
     borderBottomWidth: 3,
     borderBottomColor: '#E87E27',
+  },
+  settingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  settingIcon: {
+    width: 24,
+    height: 24,
+    marginRight: 10,
+    resizeMode: 'contain',
   },
 });
 
