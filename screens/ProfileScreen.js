@@ -242,7 +242,7 @@ const ProfileScreen = () => {
     >
       <View style={styles.settingRow}>
         <Image source={require('../assets/Innersetting.png')} style={styles.settingIcon} />
-        <Text style={styles.settingText}>Setting</Text>
+        <Text style={styles.settingText}>Profile Settings</Text>
       </View>
     </TouchableOpacity>
 
