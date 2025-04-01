@@ -125,7 +125,7 @@ const FitnessTaskScreen = () => {
   }, [isPedometerAvailable, stepCount]);
 
   const stepProgress = Math.min(stepCount / stepGoal, 1);
-  const calorieBurn = userWeight ? stepCount * 0.04 * userWeight : 0;
+  const calorieBurn = userWeight ? stepCount * 0.0005 * userWeight : 0;
   const calorieTarget = userWeight ? userWeight * 10 : calorieGoal;
   const calorieProgress = Math.min(calorieBurn / calorieTarget, 1);
 
@@ -184,7 +184,7 @@ const FitnessTaskScreen = () => {
       <View style={styles.taskHeaderRow}>
         <Text style={styles.taskStatus}>Today's Tasks</Text>
         <TouchableOpacity onPress={() => navigation.navigate('TaskListScreen')}>
-          <Text style={styles.taskListLink}>Go to Task List →</Text>
+          <Text style={styles.taskListLink} adjustsFontSizeToFit={false}>Go to Task List →</Text>
         </TouchableOpacity>
       </View>
 
