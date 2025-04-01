@@ -4,11 +4,16 @@ import { useNavigation } from '@react-navigation/native';
 import { db } from '../firebaseConfig';
 import { collection, query, orderBy, onSnapshot, doc, getDoc } from 'firebase/firestore';
 import DropDownPicker from 'react-native-dropdown-picker';
+import { getAuth } from 'firebase/auth';
+import { setDoc, deleteDoc } from 'firebase/firestore';
+import { addDoc, serverTimestamp } from 'firebase/firestore';
 
 const ShareMomentsScreen = () => {
   const navigation = useNavigation();
   const [firebaseMoments, setFirebaseMoments] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [likedMoments, setLikedMoments] = useState({});
+  const [commentInputs, setCommentInputs] = useState({});
 
   // 🔽 Dropdown state
   const [open, setOpen] = useState(false);
@@ -52,6 +57,54 @@ const ShareMomentsScreen = () => {
 
     return () => unsubscribe();
   }, []);
+
+  const handleLikeToggle = async (momentId, imageUrl) => {
+    const auth = getAuth();
+    const user = auth.currentUser;
+    if (!user) return;
+  
+    const likeRef = doc(db, 'users', user.uid, 'likes', momentId);
+    const isLiked = likedMoments[momentId];
+  
+    try {
+      if (isLiked) {
+        await deleteDoc(likeRef);
+      } else {
+        await setDoc(likeRef, {
+          momentId,
+          imageUrl,
+          likedAt: new Date(),
+        });
+      }
+      setLikedMoments((prev) => ({ ...prev, [momentId]: !isLiked }));
+    } catch (err) {
+      console.error("❤️ Like toggle failed:", err);
+    }
+  };
+
+  const handleSubmitComment = async (momentId) => {
+    const auth = getAuth();
+    const user = auth.currentUser;
+    const text = commentInputs[momentId];
+  
+    if (!user || !text || text.trim() === '') return;
+  
+    try {
+      const userDoc = await getDoc(doc(db, 'users', user.uid));
+      const username = userDoc.exists() ? userDoc.data().username : 'Anonymous';
+  
+      await addDoc(collection(db, 'moments', momentId, 'comments'), {
+        userId: user.uid,
+        userName: username,
+        text: text.trim(),
+        timestamp: serverTimestamp(),
+      });
+  
+      setCommentInputs((prev) => ({ ...prev, [momentId]: '' }));
+    } catch (err) {
+      console.error('💬 Failed to post comment:', err);
+    }
+  };
 
   const sortedMoments = [...firebaseMoments].sort((a, b) => {
     switch (sortOption) {
@@ -120,12 +173,38 @@ const ShareMomentsScreen = () => {
             </View>
             <Image source={{ uri: item.image }} style={styles.postImage} />
             <View style={styles.postActions}>
-              <TouchableOpacity>
-                <Image source={require('../assets/heart.png')} style={styles.icon} />
-              </TouchableOpacity>
-              <TouchableOpacity>
-                <Image source={require('../assets/comment.png')} style={styles.icon} />
-              </TouchableOpacity>
+              {/* 💬 Comment Input Section */}
+<View style={{ paddingHorizontal: 10, marginBottom: 10 }}>
+  <TextInput
+    placeholder="Leave a comment..."
+    placeholderTextColor="#aaa"
+    style={{
+      backgroundColor: '#2A2A2A',
+      color: 'white',
+      padding: 8,
+      borderRadius: 8,
+      marginBottom: 5,
+    }}
+    value={commentInputs[item.id] || ''}
+    onChangeText={(text) =>
+      setCommentInputs((prev) => ({ ...prev, [item.id]: text }))
+    }
+  />
+  <TouchableOpacity onPress={() => handleSubmitComment(item.id)}>
+    <Text style={{ color: '#E87E27', fontWeight: 'bold' }}>Post</Text>
+  </TouchableOpacity>
+</View>
+              <TouchableOpacity onPress={() => handleLikeToggle(item.id, item.image)}>
+  <Image
+    source={
+      likedMoments[item.id]
+        ? require('../assets/likeheart.png')  // ✅ 已按讚
+        : require('../assets/heart.png')       // ❌ 未按讚
+    }
+    style={styles.icon}
+  />
+</TouchableOpacity>
+
             </View>
           </View>
         )}

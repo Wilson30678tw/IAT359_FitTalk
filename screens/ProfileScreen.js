@@ -12,20 +12,13 @@ import {
 import * as ImagePicker from 'expo-image-picker';
 import { auth, db } from '../firebaseConfig';
 import { signOut } from 'firebase/auth';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { query, where, doc, getDoc, updateDoc,collection, getDocs } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
 import { useNavigation } from '@react-navigation/native';
 
-const userPosts = [
-  { id: '1', image: require('../assets/post1.png') },
-  { id: '2', image: require('../assets/post2.png') },
-  { id: '3', image: require('../assets/post3.png') },
-  { id: '4', image: require('../assets/post4.png') },
-];
 
-const likedPosts = [
-  { id: '1', image: require('../assets/post1.png') },
-  { id: '2', image: require('../assets/post2.png') },
-];
+
+
 
 const tabIcons = {
   posts: require('../assets/Function.png'),
@@ -48,6 +41,96 @@ const ProfileScreen = () => {
   const [bio, setBio] = useState('');
   const [editingBio, setEditingBio] = useState(false);
   const [profileImage, setProfileImage] = useState(require('../assets/default-avatar.png'));
+  const [likedPosts, setLikedPosts] = useState([]);
+  const [myPosts, setMyPosts] = useState([]);
+  const [receivedComments, setReceivedComments] = useState([]);
+
+  
+  useEffect(() => {
+    const fetchLikedPosts = async () => {
+      const auth = getAuth();
+      const user = auth.currentUser;
+      if (!user) return;
+  
+      try {
+        const likesSnapshot = await getDocs(collection(db, 'users', user.uid, 'likes'));
+        const likedData = likesSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          image: { uri: doc.data().imageUrl },
+        }));
+  
+        setLikedPosts(likedData);
+      } catch (err) {
+        console.error('🔥 Failed to fetch liked posts:', err);
+      }
+    };
+  
+    fetchLikedPosts();
+  }, []);
+
+  useEffect(() => {
+    const fetchReceivedComments = async () => {
+      const user = auth.currentUser;
+      if (!user) return;
+  
+      try {
+        const postsQuery = query(
+          collection(db, 'moments'),
+          where('userId', '==', user.uid)
+        );
+        const postSnapshots = await getDocs(postsQuery);
+  
+        let allComments = [];
+  
+        for (let docSnap of postSnapshots.docs) {
+          const momentId = docSnap.id;
+          const commentsSnapshot = await getDocs(
+            collection(db, 'moments', momentId, 'comments')
+          );
+  
+          const comments = commentsSnapshot.docs.map((doc) => ({
+            id: doc.id,
+            userName: doc.data().userName,
+            text: doc.data().text,
+            time: new Date(doc.data().timestamp?.seconds * 1000).toLocaleString(),
+            avatar: require('../assets/default-avatar.png'), // 預設頭像或之後可連結真實用戶頭像
+          }));
+  
+          allComments = [...allComments, ...comments];
+        }
+  
+        setReceivedComments(allComments);
+      } catch (err) {
+        console.error('💬 Error loading comments:', err);
+      }
+    };
+  
+    fetchReceivedComments();
+  }, []);
+
+  useEffect(() => {
+    const fetchMyPosts = async () => {
+      const user = auth.currentUser;
+      if (!user) return;
+  
+      try {
+        const postsQuery = query(
+          collection(db, 'moments'),
+          where('userId', '==', user.uid)
+        );
+        const snapshot = await getDocs(postsQuery);
+        const posts = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          image: { uri: doc.data().imageUrl }
+        }));
+        setMyPosts(posts);
+      } catch (err) {
+        console.error('❌ Failed to fetch my posts:', err);
+      }
+    };
+  
+    fetchMyPosts();
+  }, []);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -206,34 +289,42 @@ const ProfileScreen = () => {
 </View>
 
       <View style={styles.contentContainer}>
-        {selectedTab === 'posts' && (
-          <FlatList
-            data={userPosts}
-            keyExtractor={(item) => item.id}
-            numColumns={2}
-            renderItem={({ item }) => <Image source={item.image} style={styles.postImage} />}
-          />
-        )}
+      {selectedTab === 'posts' && (
+  <FlatList
+    data={myPosts}
+    keyExtractor={(item) => item.id}
+    numColumns={2}
+    renderItem={({ item }) => (
+      <Image source={item.image} style={styles.postImage} />
+    )}
+    ListEmptyComponent={<Text style={{ color: '#aaa', textAlign: 'center', marginTop: 20 }}>You haven't posted anything yet.</Text>}
+  />
+)}
         {selectedTab === 'likes' && (
-          <FlatList
-            data={likedPosts}
-            keyExtractor={(item) => item.id}
-            numColumns={2}
-            renderItem={({ item }) => <Image source={item.image} style={styles.postImage} />}
-          />
-        )}
-        {selectedTab === 'chats' &&
-          messages.map((msg) => (
-            <View key={msg.id} style={styles.messageItem}>
-              <Image source={msg.avatar} style={styles.messageAvatar} />
-              <View>
-                <Text style={styles.messageName}>
-                  {msg.name} - <Text style={styles.messageTime}>{msg.time}</Text>
-                </Text>
-                <Text style={styles.messageText}>{msg.message}</Text>
-              </View>
-            </View>
-          ))}
+  <FlatList
+    data={likedPosts}
+    keyExtractor={(item) => item.id}
+    numColumns={2}
+    renderItem={({ item }) => <Image source={item.image} style={styles.postImage} />}
+  />
+)}
+       {selectedTab === 'chats' && receivedComments.length > 0 ? (
+  receivedComments.map((msg) => (
+    <View key={msg.id} style={styles.messageItem}>
+      <Image source={msg.avatar} style={styles.messageAvatar} />
+      <View>
+        <Text style={styles.messageName}>
+          {msg.userName} - <Text style={styles.messageTime}>{msg.time}</Text>
+        </Text>
+        <Text style={styles.messageText}>{msg.text}</Text>
+      </View>
+    </View>
+  ))
+) : (
+  <Text style={{ color: '#aaa', textAlign: 'center', marginTop: 20 }}>
+    You have no comments yet.
+  </Text>
+)}
        {selectedTab === 'settings' && (
   <View style={styles.settingsContainer}>
     <TouchableOpacity
@@ -458,6 +549,13 @@ const styles = StyleSheet.create({
     marginRight: 10,
     resizeMode: 'contain',
   },
+  postImage: {
+    width: 180,
+    height: 180,
+    margin: 5,
+    borderRadius: 10,
+    resizeMode: 'cover',
+  }
 });
 
 export default ProfileScreen;
