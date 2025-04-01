@@ -9,6 +9,7 @@ import MomentsScreen from '../screens/ShareMomentsScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import ExerciseNavigator from '../screens/ExerciseNavigator';
 import TaskListScreen from '../screens/TaskListScreen';
+import SettingScreen from './SettingScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -44,6 +45,7 @@ const MainNavigator = () => {
       <Stack.Screen name="MainTabs" component={BottomTabs} />
       <Stack.Screen name="CameraScreen" component={CameraScreen} />
       <Stack.Screen name="TaskListScreen" component={TaskListScreen} />
+      <Stack.Screen name="SettingScreen" component={SettingScreen} />
     </Stack.Navigator>
   );
 };
