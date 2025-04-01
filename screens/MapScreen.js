@@ -117,8 +117,8 @@ const styles = StyleSheet.create({
     zIndex: 10, // Ensures it stays above the map
   },
   logo: {
-    width: 100, // Adjust size as needed
-    height: 50, // Adjust size as needed
+    width: 100, 
+    height: 50, 
     resizeMode: 'contain',
   },
   mapContainer: {
