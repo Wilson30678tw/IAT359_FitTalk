@@ -420,7 +420,8 @@ const styles = StyleSheet.create({
   tabIcon: {
     width: 24,
     height: 24,
-    tintColor: '#777', // 預設灰色
+    tintColor: '#777',
+    resizeMode: 'contain',
   },
   
   activeTabIcon: {
